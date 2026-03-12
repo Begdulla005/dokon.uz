@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>dokon.uz | Rasmiy Do'kon</title>
+    <title>dokon.uz | Rasmiy Sayt</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -24,8 +24,7 @@
             </div>
 
             <div class="flex items-center gap-3">
-                <button onclick="toggleAdmin()" class="text-[10px] font-bold text-gray-400 hover:text-[#7000ff] uppercase tracking-widest transition">Manager Mode</button>
-                
+                <button onclick="toggleAdmin()" class="text-[10px] font-bold text-gray-400 hover:text-[#7000ff] uppercase tracking-widest">Manager Mode</button>
                 <div onclick="toggleCartModal()" class="bg-black text-white px-5 py-2.5 rounded-2xl flex items-center gap-3 cursor-pointer active:scale-95 transition shadow-xl">
                     <span class="text-xs font-bold uppercase">Savat</span>
                     <span id="cart-count" class="bg-[#7000ff] text-[10px] px-2 py-0.5 rounded-full font-bold">0</span>
@@ -37,59 +36,57 @@
     <main class="container mx-auto px-4 py-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
             <div class="bg-gradient-to-r from-green-400 to-teal-500 rounded-[30px] p-8 h-44 flex items-center justify-between text-white relative overflow-hidden shadow-lg shadow-green-100">
-                <div class="z-10">
+                <div class="z-10 text-white">
                     <h2 class="text-2xl font-black mb-1">BAHORGI CHEGIRMALAR! 🌸</h2>
                     <p class="text-sm opacity-90 mb-4">Barcha mahsulotlar uchun 40% gacha</p>
                     <button class="bg-white text-green-600 px-6 py-2 rounded-xl text-xs font-bold uppercase">Batafsil</button>
                 </div>
-                <div class="absolute right-[-20px] bottom-[-20px] opacity-20 text-[120px] font-black italic text-white">40%</div>
+                <div class="absolute right-[-20px] bottom-[-20px] opacity-20 text-[120px] font-black italic">40%</div>
             </div>
 
             <div class="bg-gradient-to-r from-orange-400 to-red-500 rounded-[30px] p-8 h-44 flex items-center justify-between text-white relative overflow-hidden shadow-lg shadow-orange-100">
-                <div class="z-10">
+                <div class="z-10 text-white">
                     <h2 class="text-2xl font-black mb-1">TEZKOR YETKAZISH 🚚</h2>
                     <p class="text-sm opacity-90 mb-4">1 kunda uyingiz ostonasida!</p>
                     <button class="bg-white text-orange-600 px-6 py-2 rounded-xl text-xs font-bold uppercase">Buyurtma berish</button>
                 </div>
-                <div class="absolute right-4 bottom-4 w-32 opacity-10 text-white">
-                    <svg fill="currentColor" viewBox="0 0 24 24"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4z"/></svg>
+                <div class="absolute right-4 bottom-4 w-32 opacity-10">
+                    <svg fill="white" viewBox="0 0 24 24"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4z"/></svg>
                 </div>
             </div>
         </div>
 
         <div id="category-bar" class="flex gap-2 overflow-x-auto pb-4 no-scrollbar mb-6"></div>
-
         <div id="product-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6"></div>
     </main>
 
     <div id="cart-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] hidden flex items-center justify-end">
         <div class="bg-white h-full w-full max-w-md p-8 shadow-2xl flex flex-col">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-black">Sizning savatingiz</h2>
+                <h2 class="text-2xl font-black">Savat</h2>
                 <button onclick="toggleCartModal()" class="text-2xl text-gray-400 hover:text-black">✕</button>
             </div>
-            <div id="cart-items" class="flex-1 overflow-y-auto space-y-4 pr-2"></div>
+            <div id="cart-items" class="flex-1 overflow-y-auto space-y-4"></div>
             <div class="pt-6 border-t border-gray-100 mt-4">
                 <div class="flex justify-between items-center mb-6">
-                    <span class="text-gray-500 font-bold">Umumiy summa:</span>
+                    <span class="text-gray-500 font-bold">Jami:</span>
                     <span id="cart-total" class="text-2xl font-black text-[#7000ff]">0 so'm</span>
                 </div>
-                <button onclick="checkoutToTelegram()" class="w-full bg-[#7000ff] text-white py-4 rounded-2xl font-bold text-lg hover:bg-black transition active:scale-95 shadow-lg shadow-purple-200">
-                    Sotib olish
-                </button>
+                <button onclick="checkoutToTelegram()" class="w-full bg-[#7000ff] text-white py-4 rounded-2xl font-bold text-lg hover:bg-black transition">Sotib olish</button>
             </div>
         </div>
     </div>
 
     <div id="admin-panel" class="fixed inset-0 bg-black/50 z-[100] hidden flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-sm rounded-[32px] p-8 shadow-2xl">
+        <div class="bg-white w-full max-w-sm rounded-[32px] p-8 shadow-2xl animate-in zoom-in duration-300">
             <h3 class="text-xl font-black mb-4">Tovar qo'shish</h3>
             <div class="space-y-3">
-                <input id="p-name" type="text" placeholder="Nomi" class="w-full bg-gray-50 p-3 rounded-xl outline-none">
-                <input id="p-price" type="number" placeholder="Narxi" class="w-full bg-gray-50 p-3 rounded-xl outline-none">
-                <input id="p-category" type="text" placeholder="Bo'lim (Masalan: Telefonlar)" class="w-full bg-gray-50 p-3 rounded-xl outline-none">
-                <input id="p-image" type="text" placeholder="Rasm URL" class="w-full bg-gray-50 p-3 rounded-xl outline-none">
-                <button onclick="saveProduct()" class="w-full bg-[#7000ff] text-white py-3 rounded-xl font-bold mt-2">Bazaga saqlash</button>
+                <input id="p-name" type="text" placeholder="Nomi" class="w-full bg-gray-50 p-3 rounded-xl outline-none border focus:border-purple-300">
+                <input id="p-old-price" type="number" placeholder="Eski narxi (Masalan: 120000)" class="w-full bg-gray-50 p-3 rounded-xl outline-none border focus:border-red-300">
+                <input id="p-price" type="number" placeholder="Sotuv narxi (Hozirgi)" class="w-full bg-gray-50 p-3 rounded-xl outline-none border focus:border-green-300">
+                <input id="p-category" type="text" placeholder="Bo'lim (Masalan: Telefonlar)" class="w-full bg-gray-50 p-3 rounded-xl outline-none border focus:border-purple-300">
+                <input id="p-image" type="text" placeholder="Rasm URL" class="w-full bg-gray-50 p-3 rounded-xl outline-none border focus:border-purple-300">
+                <button onclick="saveProduct()" class="w-full bg-[#7000ff] text-white py-3 rounded-xl font-bold mt-2 hover:bg-black transition">Bazaga saqlash</button>
                 <button onclick="toggleAdmin()" class="w-full bg-gray-100 text-gray-400 py-3 rounded-xl font-bold">Yopish</button>
             </div>
         </div>
