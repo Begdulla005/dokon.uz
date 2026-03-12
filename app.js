@@ -85,7 +85,7 @@ window.removeFromCart = (i) => {
 window.checkoutToTelegram = function() {
     if (cart.length === 0) return alert("Savat bo'sh!");
     const botToken = "8626121351:AAG0DsSYyPHDoFerOMgRcv_W04Wc3_umaFI"; 
-    const chatId = "5300585671"; 
+    const chatId = "5579963983"; 
 
     let msg = `🛍️ BUYURTMA!\n\n`;
     cart.forEach(p => msg += `• ${p.name} (${p.qty} ta)\n`);
