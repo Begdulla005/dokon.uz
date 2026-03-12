@@ -82,7 +82,7 @@ function updateCartUI() {
 window.checkoutToTelegram = function() {
     if (cart.length === 0) return alert("Savat bo'sh!");
     const botToken = "8626121351:AAG0DsSYyPHDoFerOMgRcv_W04Wc3_umaFI"; 
-    const chatId = "5300585671"; 
+    const chatId = "5579963983"; 
 
     let msg = `🚀 YANGI BUYURTMA!\n\n`;
     cart.forEach(p => msg += `📦 ${p.name}\n🔢 ${p.qty} ta — ${parseInt(p.price*p.qty).toLocaleString()} so'm\n\n`);
