@@ -1,133 +1,144 @@
-let products = JSON.parse(localStorage.getItem('uzum_db_vfinal')) || [];
-let cart = JSON.parse(localStorage.getItem('uzum_cart')) || [];
+let products = JSON.parse(localStorage.getItem('dokon_pro_db')) || [
+    { id: 1, name: "iPhone 15 Pro Max", price: 15000000, oldPrice: 17000000, category: "Telefonlar", image: "https://vsc-store.uz/wp-content/uploads/2023/10/iphone-15-pro-finish-select-202309-6-7-inch-natural-titanium.webp" }
+];
+let cart = JSON.parse(localStorage.getItem('dokon_cart')) || [];
 let currentFilter = "Barchasi";
 
-// 1. BANNER TUGMASI UCHUN SKROLL FUNKSIYASI
-window.scrollToProducts = function() {
-    document.getElementById('product-section').scrollIntoView({ behavior: 'smooth' });
+// 1. AQLLI QIDIRUV (AI MANTIQI)
+window.smartSearch = function(val) {
+    const dropdown = document.getElementById('search-dropdown');
+    if (val.length < 2) { dropdown.style.display = 'none'; return; }
+
+    // Ism yoki kategoriya bo'yicha qidirish
+    const results = products.filter(p => 
+        p.name.toLowerCase().includes(val.toLowerCase()) || 
+        p.category.toLowerCase().includes(val.toLowerCase())
+    ).slice(0, 5); // Faqat top 5 natija
+
+    if (results.length > 0) {
+        dropdown.style.display = 'block';
+        dropdown.innerHTML = results.map(p => `
+            <div onclick="quickView(${p.id})" class="flex items-center gap-4 p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-50 transition">
+                <img src="${p.image}" class="w-10 h-10 rounded-lg object-cover">
+                <div>
+                    <p class="text-sm font-bold text-gray-800">${p.name}</p>
+                    <p class="text-xs text-[#7000ff] font-bold">${parseInt(p.price).toLocaleString()} so'm</p>
+                </div>
+            </div>
+        `).join('') + `<div class="p-3 text-center text-[10px] text-gray-400 uppercase font-bold">Barcha natijalarni ko'rish</div>`;
+    } else {
+        dropdown.innerHTML = `<div class="p-6 text-center text-gray-400 text-sm">Afsus, hech narsa topilmadi 😕</div>`;
+    }
 };
 
-// 2. RENDER - MAHSULOTLARNI CHIQARISH
-function render(displayProducts = null) {
+window.quickView = (id) => {
+    const p = products.find(x => x.id === id);
+    document.getElementById('search-input').value = p.name;
+    document.getElementById('search-dropdown').style.display = 'none';
+    render([p]); // Faqat o'sha mahsulotni ko'rsatish
+};
+
+// 2. MAHSULOTLARNI CHIQARISH
+function render(displayItems = null) {
     const grid = document.getElementById('product-grid');
     const catBar = document.getElementById('category-bar');
-    
-    if (!displayProducts) {
-        displayProducts = currentFilter === "Barchasi" ? products : products.filter(p => p.category === currentFilter);
-    }
+    const items = displayItems || (currentFilter === "Barchasi" ? products : products.filter(p => p.category === currentFilter));
 
-    // Kategoriyalar (Uzum Market kabi filtrlar)
+    // Kategoriya paneli
     const cats = ["Barchasi", ...new Set(products.map(p => p.category))];
     catBar.innerHTML = cats.map(c => `
-        <button onclick="filterBy('${c}')" class="px-6 py-2.5 rounded-2xl text-[13px] font-bold transition-all whitespace-nowrap ${currentFilter === c ? 'bg-[#7000ff] text-white shadow-lg' : 'bg-white text-gray-500 border border-gray-100 hover:border-purple-200'}">
-            ${c}
-        </button>
+        <button onclick="filterBy('${c}')" class="px-5 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition ${currentFilter === c ? 'bg-[#7000ff] text-white' : 'bg-white text-gray-500 border border-gray-100'}">${c}</button>
     `).join('');
 
-    // Mahsulot kartalari dizayni
-    grid.innerHTML = displayProducts.map(p => {
-        const skidka = p.oldPrice ? Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100) : 0;
-        return `
-        <div class="bg-white rounded-[32px] p-4 border border-transparent hover:border-purple-100 hover:shadow-2xl transition-all group relative cursor-pointer">
-            ${skidka > 0 ? `<span class="absolute top-4 left-4 z-10 bg-red-500 text-white text-[10px] font-black px-2 py-1 rounded-lg">-${skidka}%</span>` : ''}
-            <div class="h-48 rounded-[24px] overflow-hidden bg-gray-50 mb-4">
-                <img src="${p.image}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700" onerror="this.src='https://placehold.co/400x400?text=Rasm+Mavjud+Emas'">
+    // Mahsulot kartasi
+    grid.innerHTML = items.map(p => `
+        <div class="bg-white rounded-2xl p-3 border border-transparent hover:border-gray-200 hover:shadow-lg transition-all group">
+            <div class="h-40 rounded-xl overflow-hidden bg-gray-50 mb-3 relative">
+                <img src="${p.image}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                <button class="absolute top-2 right-2 bg-white/80 backdrop-blur w-8 h-8 rounded-full shadow text-sm">❤️</button>
             </div>
-            <h3 class="text-[13px] font-semibold text-gray-800 h-10 line-clamp-2 mb-3 leading-snug">${p.name}</h3>
-            <div class="flex flex-col mb-4">
-                ${p.oldPrice ? `<span class="text-[11px] text-gray-400 line-through">${parseInt(p.oldPrice).toLocaleString()} so'm</span>` : ''}
-                <span class="text-lg font-black text-gray-900">${parseInt(p.price).toLocaleString()} so'm</span>
+            <h3 class="text-xs font-medium h-8 line-clamp-2 mb-2">${p.name}</h3>
+            <div class="flex flex-col mb-3">
+                ${p.oldPrice ? `<span class="text-[10px] text-gray-400 line-through">${parseInt(p.oldPrice).toLocaleString()}</span>` : ''}
+                <span class="text-sm font-black text-gray-900">${parseInt(p.price).toLocaleString()} so'm</span>
             </div>
-            <button onclick="addToCart(${p.id})" class="w-full bg-gray-50 text-gray-900 py-3 rounded-2xl font-black text-[11px] hover:bg-[#7000ff] hover:text-white transition-all active:scale-95 shadow-sm">
-                Savatga
-            </button>
+            <button onclick="addToCart(${p.id})" class="w-full py-2 rounded-xl border border-[#7000ff] text-[#7000ff] font-bold text-[10px] hover:bg-[#7000ff] hover:text-white transition active:scale-95">Savatga</button>
         </div>
-        `;
-    }).join('');
-
-    updateCartUI();
+    `).join('');
+    updateUI();
 }
 
-// 3. SAVAT VA BOT BILAN ISHLASH
-window.addToCart = function(id) {
-    const item = products.find(p => p.id === id);
-    const existing = cart.find(c => c.id === id);
-    if (existing) { existing.qty += 1; } else { cart.push({ ...item, qty: 1 }); }
-    localStorage.setItem('uzum_cart', JSON.stringify(cart));
-    updateCartUI();
-};
-
-function updateCartUI() {
-    document.getElementById('cart-count').innerText = cart.reduce((s, i) => s + i.qty, 0);
-    const cartItemsDiv = document.getElementById('cart-items');
-    const totalSpan = document.getElementById('cart-total');
-
-    let total = 0;
-    cartItemsDiv.innerHTML = cart.length === 0 ? '<div class="text-center text-gray-400 py-10">Savat hali bo\'sh...</div>' : cart.map((item, index) => {
-        total += item.price * item.qty;
-        return `
-            <div class="flex gap-4 items-center bg-gray-50 p-4 rounded-3xl border border-gray-100">
-                <img src="${item.image}" class="w-14 h-14 rounded-xl object-cover">
-                <div class="flex-1">
-                    <p class="text-[11px] font-bold line-clamp-1 text-gray-600">${item.name}</p>
-                    <p class="text-sm font-black text-[#7000ff]">${parseInt(item.price).toLocaleString()} x ${item.qty}</p>
-                </div>
-                <button onclick="removeFromCart(${index})" class="text-gray-300 hover:text-red-500 transition">✕</button>
-            </div>
-        `;
-    }).join('');
-    totalSpan.innerText = total.toLocaleString() + " so'm";
-}
-
-window.checkoutToTelegram = function() {
-    if (cart.length === 0) return alert("Savat bo'sh!");
-    const botToken = "8626121351:AAG0DsSYyPHDoFerOMgRcv_W04Wc3_umaFI"; 
-    const chatId = "5579963983"; 
-
-    let msg = `🚀 YANGI BUYURTMA!\n\n`;
-    cart.forEach(p => msg += `📦 ${p.name}\n🔢 ${p.qty} ta — ${parseInt(p.price*p.qty).toLocaleString()} so'm\n\n`);
-    msg += `💰 JAMI: ${cart.reduce((s, p) => s + (p.price*p.qty), 0).toLocaleString()} so'm`;
-
-    fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(msg)}`)
-    .then(() => {
-        alert("Buyurtma qabul qilindi! ✅");
-        cart = [];
-        localStorage.setItem('uzum_cart', JSON.stringify(cart));
-        toggleCartModal();
-        updateCartUI();
-    });
-};
-
-// 4. ADMIN FUNKSIYALARI
+// 3. ADMIN: SAQLASH VA TOZALASH
 window.saveProduct = function() {
-    const fields = {
-        name: document.getElementById('p-name'),
-        old: document.getElementById('p-old-price'),
-        price: document.getElementById('p-price'),
-        cat: document.getElementById('p-category'),
-        img: document.getElementById('p-image')
-    };
+    const n = document.getElementById('p-name').value;
+    const pr = document.getElementById('p-price').value;
+    const op = document.getElementById('p-old-price').value;
+    const cat = document.getElementById('p-category').value;
+    const img = document.getElementById('p-image').value;
 
-    if(!fields.name.value || !fields.price.value) return alert("Nom va narx shart!");
+    if(!n || !pr) return alert("Nom va narxni yozing!");
 
-    products.push({ 
-        id: Date.now(), 
-        name: fields.name.value, 
-        oldPrice: fields.old.value,
-        price: fields.price.value, 
-        category: fields.cat.value, 
-        image: fields.img.value 
-    });
-
-    localStorage.setItem('uzum_db_vfinal', JSON.stringify(products));
-    Object.values(fields).forEach(i => i.value = ""); // TOZALASH
+    products.push({ id: Date.now(), name: n, price: pr, oldPrice: op, category: cat, image: img });
+    localStorage.setItem('dokon_pro_db', JSON.stringify(products));
+    
+    // Tozalash
+    ['p-name', 'p-price', 'p-old-price', 'p-category', 'p-image'].forEach(id => document.getElementById(id).value = "");
+    
     render();
     toggleAdmin();
 };
 
-window.filterBy = (c) => { currentFilter = c; render(); };
-window.toggleCartModal = () => document.getElementById('cart-modal').classList.toggle('hidden');
-window.toggleAdmin = () => document.getElementById('admin-panel').classList.toggle('hidden');
-window.removeFromCart = (i) => { cart.splice(i, 1); localStorage.setItem('uzum_cart', JSON.stringify(cart)); updateCartUI(); };
+// 4. BOT VA SAVAT
+window.checkoutToTelegram = function() {
+    if(cart.length === 0) return;
+    const botToken = "8626121351:AAG0DsSYyPHDoFerOMgRcv_W04Wc3_umaFI";
+    const chatId = "5579963983";
 
-document.addEventListener('DOMContentLoaded', render);
+    let text = "🛍 YANGI BUYURTMA:\n\n";
+    cart.forEach(i => text += `🔹 ${i.name} (${i.qty} ta)\n`);
+    text += `\n💰 JAMI: ${document.getElementById('cart-total').innerText}`;
+
+    fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(text)}`)
+    .then(() => {
+        alert("Buyurtma yuborildi! ✅");
+        cart = [];
+        localStorage.setItem('dokon_cart', JSON.stringify(cart));
+        toggleCartModal();
+        updateUI();
+    });
+};
+
+// Yordamchi funksiyalar
+window.addToCart = (id) => {
+    const item = products.find(p => p.id === id);
+    const has = cart.find(c => c.id === id);
+    if(has) has.qty++; else cart.push({...item, qty: 1});
+    localStorage.setItem('dokon_cart', JSON.stringify(cart));
+    updateUI();
+};
+
+function updateUI() {
+    document.getElementById('cart-count').innerText = cart.reduce((s, i) => s + i.qty, 0);
+    const total = cart.reduce((s, i) => s + (i.price * i.qty), 0);
+    document.getElementById('cart-total').innerText = total.toLocaleString() + " so'm";
+    
+    const itemsDiv = document.getElementById('cart-items');
+    itemsDiv.innerHTML = cart.map((c, i) => `
+        <div class="flex gap-4 items-center bg-gray-50 p-3 rounded-2xl">
+            <img src="${c.image}" class="w-12 h-12 rounded-lg object-cover">
+            <div class="flex-1 text-xs">
+                <p class="font-bold">${c.name}</p>
+                <p>${parseInt(c.price).toLocaleString()} x ${c.qty}</p>
+            </div>
+            <button onclick="removeFromCart(${i})" class="text-red-400">✕</button>
+        </div>
+    `).join('');
+}
+
+window.removeFromCart = (i) => { cart.splice(i, 1); localStorage.setItem('dokon_cart', JSON.stringify(cart)); updateUI(); };
+window.toggleAdmin = () => document.getElementById('admin-panel').classList.toggle('hidden');
+window.toggleCartModal = () => document.getElementById('cart-modal').classList.toggle('hidden');
+window.filterBy = (c) => { currentFilter = c; render(); };
+window.scrollToProducts = () => document.getElementById('product-section').scrollIntoView({behavior:'smooth'});
+
+render();
