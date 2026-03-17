@@ -1,23 +1,37 @@
-function switchPage(pageId) {
-    // 1. Hamma sahifalarni yashirish
-    document.querySelectorAll('.page-section').forEach(section => {
-        section.classList.add('hidden');
-    });
+// BAZANI YUKLASH
+let products = JSON.parse(localStorage.getItem('dokon_products')) || [];
 
-    // 2. Tanlangan sahifani ko'rsatish
-    const activePage = document.getElementById('page-' + pageId);
-    if (activePage) {
-        activePage.classList.remove('hidden');
+function saveProduct() {
+    const name = document.getElementById('prod-name').value;
+    const price = document.getElementById('prod-price').value;
+
+    if(name && price) {
+        products.push({ id: Date.now(), name, price });
+        localStorage.setItem('dokon_products', JSON.stringify(products));
+        alert("Saqlandi!");
+        document.getElementById('prod-name').value = '';
+        document.getElementById('prod-price').value = '';
     }
+}
 
-    // 3. Sarlavhani o'zgartirish
-    document.getElementById('current-page-title').innerText = pageId.charAt(0).toUpperCase() + pageId.slice(1);
-
-    // 4. Sidebar tugmalarini rangini to'g'irlash
+function switchPage(pageId) {
+    document.querySelectorAll('.page-section').forEach(s => s.classList.add('hidden'));
+    document.getElementById('section-' + pageId).classList.remove('hidden');
+    document.getElementById('page-title').innerText = pageId.toUpperCase();
+    
     document.querySelectorAll('.nav-item').forEach(btn => {
         btn.classList.remove('active');
-        if (btn.innerText.toLowerCase().includes(pageId.toLowerCase())) {
-            btn.classList.add('active');
-        }
+        if(btn.innerText.toLowerCase().includes(pageId)) btn.classList.add('active');
     });
 }
+
+// GRAFIKNI CHIZISH
+const ctx = document.getElementById('salesChart').getContext('2d');
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: ['Du', 'Se', 'Cho', 'Pa', 'Ju', 'Sha'],
+        datasets: [{ label: 'Savdo', data: [12, 19, 3, 5, 2, 3], borderColor: '#6366f1', tension: 0.4 }]
+    },
+    options: { plugins: { legend: { display: false } }, scales: { y: { display: false } } }
+});
