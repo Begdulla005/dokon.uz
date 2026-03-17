@@ -1,7 +1,7 @@
-// 1. MA'LUMOTLARNI YUKLASH (LocalStorage)
+// MA'LUMOTLARNI YUKLASH (LocalStorage)
 let products = JSON.parse(localStorage.getItem('dokon_products')) || [];
 
-// 2. SAHIFALARNI BOSHQARISH
+// SAHIFALARNI BOSHQARISH
 function switchPage(page) {
     document.querySelectorAll('.page-section').forEach(s => s.classList.add('hidden'));
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
@@ -13,36 +13,26 @@ function switchPage(page) {
     if(page === 'mahsulotlar') renderProducts();
 }
 
-// 3. MAHSULOT QO'SHISH
+// MAHSULOT QO'SHISH
 function addProduct() {
     const name = document.getElementById('in-name').value;
     const price = document.getElementById('in-price').value;
 
     if(name && price) {
         products.push({ id: Date.now(), name, price });
-        saveData();
-        renderProducts();
+        localStorage.setItem('dokon_products', JSON.stringify(products));
+        alert("Saqlandi!");
         document.getElementById('in-name').value = '';
         document.getElementById('in-price').value = '';
-    } else {
-        alert("Iltimos, hamma maydonlarni to'ldiring!");
-    }
-}
-
-// 4. MAHSULOTNI O'CHIRISH
-function deleteProduct(id) {
-    if(confirm("Ushbu mahsulotni o'chirmoqchimisiz?")) {
-        products = products.filter(p => p.id !== id);
-        saveData();
         renderProducts();
     }
 }
 
-// 5. MAHSULOTLARNI JADVALGA CHIQARISH
+// JADVALNI CHIZISH
 function renderProducts() {
     const table = document.getElementById('product-table-body');
     table.innerHTML = products.map(p => `
-        <tr class="border-b border-slate-800/50 hover:bg-slate-800/30 transition">
+        <tr class="border-b border-slate-800/50">
             <td class="py-4 font-bold text-slate-200">${p.name}</td>
             <td class="py-4 text-indigo-400 font-black">${Number(p.price).toLocaleString()} so'm</td>
             <td class="py-4 text-center">
@@ -52,33 +42,37 @@ function renderProducts() {
     `).join('');
 }
 
-// 6. MA'LUMOTLARNI SAQLASH
-function saveData() {
-    localStorage.setItem('dokon_products', JSON.stringify(products));
+// O'CHIRISH
+function deleteProduct(id) {
+    if(confirm("O'chirilsinmi?")) {
+        products = products.filter(p => p.id !== id);
+        localStorage.setItem('dokon_products', JSON.stringify(products));
+        renderProducts();
+    }
 }
 
-// 7. GRAFIKNI CHIZISH
+// GRAFIKNI CHIZISH
 const ctx = document.getElementById('salesChart').getContext('2d');
 new Chart(ctx, {
     type: 'line',
     data: {
-        labels: ['Du', 'Se', 'Cho', 'Pa', 'Ju', 'Sha', 'Yak'],
+        labels: ['Du', 'Se', 'Cho', 'Pa', 'Ju', 'Sha'],
         datasets: [{
             label: 'Savdo',
-            data: [5, 12, 18, 10, 22, 15, 25],
+            data: [10, 25, 15, 30, 20, 35],
             borderColor: '#6366f1',
             borderWidth: 4,
             tension: 0.4,
-            pointRadius: 0,
             fill: true,
-            backgroundColor: 'rgba(99, 102, 241, 0.1)'
+            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+            pointRadius: 0
         }]
     },
     options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: { legend: { display: false } },
-        scales: { y: { display: false }, x: { grid: { display: false }, ticks: { color: '#64748b' } } }
+        scales: { y: { display: false }, x: { grid: { display: false } } }
     }
 });
 
