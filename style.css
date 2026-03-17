@@ -1,52 +1,25 @@
-/* style.css ga qo'shing */
-.add-product {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-}
+/* Oldingi style.css ni saqlab, quyidagilarni qo'shing yoki almashtiring */
 
-#product-select {
-  flex: 1;
-  padding: 12px;
-  background: #1f2937;
-  border: 1px solid #374151;
-  color: white;
-  border-radius: 6px;
-}
-
-.btn-add {
-  background: #10b981;
-  color: white;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 6px;
-  cursor: pointer;
+.payment-option input:checked + div {
+  border-color: rgb(99 102 241) !important;
+  background: rgba(99, 102, 241, 0.15) !important;
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
 }
 
 .cart-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px;
-  background: #111827;
-  margin-bottom: 8px;
-  border-radius: 6px;
+  transition: all 0.3s ease;
 }
 
-.btn-remove {
-  background: #ef4444;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-  cursor: pointer;
+.cart-item:hover {
+  transform: translateY(-2px);
+  background: rgba(255,255,255,0.03);
 }
 
-.btn-finish {
-  background: #7c3aed;
-  color: white;
-  width: 100%;
-  padding: 16px;
-  font-size: 18px;
-  margin-top: 20px;
+button:active {
+  transform: scale(0.97);
+}
+
+/* Glass effektni kuchaytirish uchun */
+.backdrop-blur-2xl {
+  backdrop-filter: blur(24px);
 }

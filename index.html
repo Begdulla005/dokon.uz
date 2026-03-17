@@ -1,33 +1,163 @@
-<!-- index.html ichida, sotuv paneli qismiga -->
-<div class="sotuv-panel">
-  <h2>Sotuv Paneli</h2>
-  
-  <div class="add-product">
-    <input 
-      list="product-list" 
-      id="product-select" 
-      placeholder="Mahsulotni tanlang yoki qidiring..." 
-      autocomplete="off"
-    />
-    <datalist id="product-list">
-      <!-- JS orqali dinamik to'ldiramiz -->
-    </datalist>
-    
-    <button id="add-to-cart" class="btn-add">SAVATGA QO'SHISH</button>
+<!DOCTYPE html>
+<html lang="uz" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DOKON.UZ - Kassa (Modern POS 2026)</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gradient-to-br from-gray-950 via-indigo-950 to-purple-950 min-h-screen text-gray-100 font-sans antialiased">
+
+  <div class="flex h-screen overflow-hidden">
+
+    <!-- Sidebar -->
+    <aside class="w-72 bg-gray-900/60 backdrop-blur-xl border-r border-gray-800/50 flex flex-col transition-all duration-300">
+      <div class="p-6 flex items-center gap-4 border-b border-gray-800/40">
+        <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-lg">D</div>
+        <span class="text-xl font-semibold">dokon.uz</span>
+      </div>
+
+      <div class="p-4 text-center text-sm text-gray-400 border-b border-gray-800/40">
+        Admin: Begdulla005
+      </div>
+
+      <nav class="flex-1 p-4 space-y-2">
+        <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition">
+          <i class="fas fa-tachometer-alt w-5"></i> Dashboard
+        </a>
+        <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-indigo-600/30 to-purple-600/30 text-white font-medium">
+          <i class="fas fa-cash-register w-5"></i> Kassa (Sotuv)
+        </a>
+        <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition">
+          <i class="fas fa-box w-5"></i> Mahsulotlar
+        </a>
+        <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition">
+          <i class="fas fa-users w-5"></i> Mijozlar
+        </a>
+      </nav>
+
+      <div class="p-4 mt-auto border-t border-gray-800/40 text-sm text-gray-500">
+        Tizim: Online rejim
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="flex-1 overflow-y-auto p-8">
+      <h1 class="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400 mb-10">Kassa</h1>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Sotuv Paneli (Glassmorphism) -->
+        <div class="lg:col-span-2 bg-gray-900/30 backdrop-blur-2xl border border-gray-700/40 rounded-3xl p-8 shadow-2xl shadow-indigo-900/20">
+          <h2 class="text-2xl font-semibold mb-6 text-indigo-300">Sotuv Paneli</h2>
+
+          <div class="flex flex-col sm:flex-row gap-4 mb-8">
+            <input 
+              id="product-input"
+              list="product-list"
+              placeholder="Mahsulot nomi yoki kodini kiriting..."
+              class="flex-1 bg-gray-800/50 border border-gray-600/50 rounded-xl px-5 py-4 text-lg focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 transition"
+              autocomplete="off"
+            />
+            <datalist id="product-list"></datalist>
+
+            <button id="add-btn" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-8 py-4 rounded-xl font-medium shadow-lg shadow-emerald-900/30 transition transform hover:scale-105 active:scale-95">
+              <i class="fas fa-cart-plus mr-2"></i> SAVATGA QO'SHISH
+            </button>
+          </div>
+
+          <!-- Savat -->
+          <div class="bg-gray-800/40 rounded-2xl p-6 border border-gray-700/30 min-h-[300px]">
+            <h3 class="text-xl font-medium mb-4 text-purple-300">Savat</h3>
+            <div id="cart-items" class="space-y-4"></div>
+            <div class="empty-message text-center text-gray-500 py-20 italic hidden">Savat hali bo'sh...</div>
+          </div>
+
+          <!-- Chegirma + Jami -->
+          <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm text-gray-400 mb-2">Chegirma (% yoki summa)</label>
+              <input id="discount-input" type="text" placeholder="Masalan: 10% yoki 50000" class="w-full bg-gray-800/50 border border-gray-600/50 rounded-xl px-5 py-4 focus:outline-none focus:border-purple-500 transition">
+            </div>
+            <div class="flex flex-col justify-end">
+              <div class="text-right">
+                <span class="text-lg text-gray-300">Jami:</span>
+                <span id="total-sum" class="text-3xl font-bold text-white ml-2">0 so'm</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- To'lov turlari -->
+          <div class="mt-8">
+            <h3 class="text-xl font-medium mb-4 text-cyan-300">To'lov turi</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <label class="payment-option">
+                <input type="radio" name="payment" value="naqd" class="hidden" checked>
+                <div class="bg-gray-800/50 border-2 border-gray-700/50 rounded-xl p-4 text-center cursor-pointer hover:border-cyan-500/70 transition group">
+                  <i class="fas fa-money-bill-wave text-3xl text-cyan-400 mb-2 group-hover:scale-110 transition"></i>
+                  <p>Naqd</p>
+                </div>
+              </label>
+              <label class="payment-option">
+                <input type="radio" name="payment" value="karta" class="hidden">
+                <div class="bg-gray-800/50 border-2 border-gray-700/50 rounded-xl p-4 text-center cursor-pointer hover:border-indigo-500/70 transition group">
+                  <i class="fas fa-credit-card text-3xl text-indigo-400 mb-2 group-hover:scale-110 transition"></i>
+                  <p>Karta</p>
+                </div>
+              </label>
+              <label class="payment-option">
+                <input type="radio" name="payment" value="payme" class="hidden">
+                <div class="bg-gray-800/50 border-2 border-gray-700/50 rounded-xl p-4 text-center cursor-pointer hover:border-purple-500/70 transition group">
+                  <i class="fab fa-paypal text-3xl text-purple-400 mb-2 group-hover:scale-110 transition"></i>
+                  <p>Payme</p>
+                </div>
+              </label>
+              <label class="payment-option">
+                <input type="radio" name="payment" value="click" class="hidden">
+                <div class="bg-gray-800/50 border-2 border-gray-700/50 rounded-xl p-4 text-center cursor-pointer hover:border-pink-500/70 transition group">
+                  <i class="fas fa-mobile-alt text-3xl text-pink-400 mb-2 group-hover:scale-110 transition"></i>
+                  <p>Click</p>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <button id="finish-btn" class="mt-10 w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white py-5 rounded-2xl text-xl font-bold shadow-2xl shadow-purple-900/40 transition transform hover:scale-[1.02] active:scale-95">
+            SOTUVNI YAKUNLASH
+          </button>
+        </div>
+
+        <!-- To'lov ma'lumotlari paneli -->
+        <div class="bg-gray-900/30 backdrop-blur-2xl border border-gray-700/40 rounded-3xl p-8 shadow-2xl shadow-purple-900/20">
+          <h2 class="text-2xl font-semibold mb-6 text-purple-300">To'lov ma'lumotlari</h2>
+          <div class="space-y-6">
+            <div class="bg-gray-800/40 p-5 rounded-xl border border-gray-700/30">
+              <p class="text-gray-400">Sarvar holati</p>
+              <p class="text-xl font-medium text-green-400">Online • Tayyor</p>
+            </div>
+            <!-- Keyinchalik bu yerni kengaytirish mumkin: mijoz nomi, telefon va h.k. -->
+          </div>
+        </div>
+      </div>
+    </main>
   </div>
 
-  <div class="cart">
-    <h3>Savat</h3>
-    <div id="cart-items">
-      <!-- JS orqali mahsulotlar chiqadi -->
-      <p class="empty-cart">Savat bo'sh</p>
-    </div>
-    
-    <div class="total">
-      <strong>Jami:</strong> 
-      <span id="total-amount">0 so'm</span>
-    </div>
-    
-    <button id="finish-sale" class="btn-finish">SOTUVNI YAKUNLASH</button>
+  <!-- Xato toast -->
+  <div id="error-toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-red-900/90 backdrop-blur-lg border border-red-700/50 text-white px-8 py-5 rounded-2xl shadow-2xl shadow-red-950/50 flex items-center gap-4 transform translate-y-32 transition duration-500 z-50">
+    <i class="fas fa-exclamation-triangle text-2xl"></i>
+    <span id="error-message" class="font-medium"></span>
   </div>
-</div>
+
+  <!-- Receipt modal (oddiy variant) -->
+  <div id="receipt-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+    <div class="bg-gray-900 border border-gray-700 rounded-3xl p-10 max-w-lg w-full mx-4 shadow-2xl">
+      <h2 class="text-2xl font-bold text-center mb-6 text-indigo-300">Sotuv Cheki</h2>
+      <div id="receipt-content" class="space-y-3 mb-8"></div>
+      <div class="text-right text-xl font-bold">Jami: <span id="receipt-total">0 so'm</span></div>
+      <button id="close-receipt" class="mt-8 w-full bg-gray-700 hover:bg-gray-600 py-4 rounded-xl transition">Yopish</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,120 +1,139 @@
-// app.js
+// ... oldingi products massivi saqlanadi ...
 
-// Mahsulotlar bazasi (hozircha statik, keyin backenddan olamiz)
-const products = [
-  { id: 1, name: "Samsung Galaxy A55", price: 4500000, stock: 12 },
-  { id: 2, name: "AirPods Pro 2", price: 3800000, stock: 8 },
-  { id: 3, name: "iPhone 15 Pro", price: 14000000, stock: 5 },
-  { id: 4, name: "Simsiz quvvatlagich", price: 450000, stock: 20 },
-  { id: 5, name: "USB-C kabel 2m", price: 120000, stock: 50 },
-  // O'zingizning mahsulotlaringizni qo'shing
-];
+let cart = [];
+let selectedPayment = 'naqd';
 
-let cart = []; // savat massivi
+// DOM
+const productInput = document.getElementById('product-input');
+const addBtn = document.getElementById('add-btn');
+const cartItemsDiv = document.getElementById('cart-items');
+const totalSumEl = document.getElementById('total-sum');
+const finishBtn = document.getElementById('finish-btn');
+const discountInput = document.getElementById('discount-input');
+const errorToast = document.getElementById('error-toast');
+const errorMsg = document.getElementById('error-message');
+const receiptModal = document.getElementById('receipt-modal');
+const receiptContent = document.getElementById('receipt-content');
+const receiptTotal = document.getElementById('receipt-total');
+const closeReceipt = document.getElementById('close-receipt');
 
-// DOM elementlarni olish
-const productSelect = document.getElementById('product-select'); // <select> yoki <input>
-const addButton = document.getElementById('add-to-cart');
-const cartItemsContainer = document.getElementById('cart-items');
-const totalAmount = document.getElementById('total-amount');
-const finishButton = document.getElementById('finish-sale');
-// davomi...
+// ... loadProductsToDatalist() funksiyasi oldingidek ...
 
-// Mahsulotlarni datalist ga yuklash (qidiruv uchun)
-function loadProducts() {
-  const datalist = document.getElementById('product-list');
-  datalist.innerHTML = '';
-  products.forEach(product => {
-    const option = document.createElement('option');
-    option.value = product.name;
-    option.dataset.id = product.id;
-    option.dataset.price = product.price;
-    datalist.appendChild(option);
+function renderCart() {
+  cartItemsDiv.innerHTML = '';
+  const emptyMsg = document.querySelector('.empty-message');
+
+  if (cart.length === 0) {
+    emptyMsg.classList.remove('hidden');
+    totalSumEl.textContent = '0 so\'m';
+    return;
+  }
+
+  emptyMsg.classList.add('hidden');
+
+  let subtotal = 0;
+  cart.forEach((item, i) => {
+    const itemTotal = item.price * item.quantity;
+    subtotal += itemTotal;
+
+    const div = document.createElement('div');
+    div.className = 'cart-item flex justify-between items-center py-4 border-b border-gray-700/30 animate-fade-in';
+    div.innerHTML = `
+      <div>
+        <div class="font-medium">${item.name}</div>
+        <div class="text-sm text-gray-400">${item.price.toLocaleString('uz-UZ')} so'm × ${item.quantity}</div>
+      </div>
+      <div class="flex items-center gap-4">
+        <div class="flex gap-2">
+          <button onclick="changeQty(${i}, -1)" class="w-9 h-9 bg-gray-700/70 rounded-lg hover:bg-gray-600 transition">-</button>
+          <span class="w-10 text-center pt-1.5">${item.quantity}</span>
+          <button onclick="changeQty(${i}, 1)" class="w-9 h-9 bg-gray-700/70 rounded-lg hover:bg-gray-600 transition">+</button>
+        </div>
+        <span class="font-medium w-28 text-right">${itemTotal.toLocaleString('uz-UZ')} so'm</span>
+        <button onclick="removeItem(${i})" class="text-red-400 hover:text-red-300 transition">
+          <i class="fas fa-trash-alt"></i>
+        </button>
+      </div>
+    `;
+    cartItemsDiv.appendChild(div);
   });
-}
 
-// Savatni yangilash
-function updateCart() {
-  const container = document.getElementById('cart-items');
-  container.innerHTML = '';
-
-  if (cart.length === 0) {
-    container.innerHTML = '<p class="empty-cart">Savat bo\'sh</p>';
-  } else {
-    cart.forEach((item, index) => {
-      const itemDiv = document.createElement('div');
-      itemDiv.className = 'cart-item';
-      itemDiv.innerHTML = `
-        <div class="item-info">
-          <span>${item.name}</span>
-          <small>${item.price.toLocaleString()} so'm × ${item.quantity}</small>
-        </div>
-        <div class="item-actions">
-          <button onclick="changeQuantity(${index}, -1)">-</button>
-          <span>${item.quantity}</span>
-          <button onclick="changeQuantity(${index}, 1)">+</button>
-          <button class="btn-remove" onclick="removeFromCart(${index})">O'chirish</button>
-        </div>
-      `;
-      container.appendChild(itemDiv);
-    });
+  // Chegirma hisoblash
+  let discountValue = 0;
+  const discStr = discountInput.value.trim();
+  if (discStr) {
+    if (discStr.endsWith('%')) {
+      const perc = parseFloat(discStr);
+      if (!isNaN(perc)) discountValue = subtotal * (perc / 100);
+    } else {
+      const sum = parseFloat(discStr);
+      if (!isNaN(sum)) discountValue = sum;
+    }
   }
 
-  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  totalAmount.textContent = total.toLocaleString() + " so'm";
+  const finalTotal = Math.max(0, subtotal - discountValue);
+  totalSumEl.textContent = finalTotal.toLocaleString('uz-UZ') + " so'm";
 }
 
-// Miqdor o'zgartirish
-window.changeQuantity = function(index, delta) {
-  const newQty = cart[index].quantity + delta;
-  if (newQty >= 1) {
-    cart[index].quantity = newQty;
-  } else {
-    cart.splice(index, 1);
+// ... changeQty, removeItem funksiyalari oldingidek, faqat renderCart() chaqirilsin ...
+
+addBtn.addEventListener('click', addToCart);
+productInput.addEventListener('keypress', e => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    addToCart();
   }
-  updateCart();
-}
-
-// O'chirish
-window.removeFromCart = function(index) {
-  cart.splice(index, 1);
-  updateCart();
-}
-
-// Qo'shish tugmasi
-addButton.addEventListener('click', () => {
-  const input = document.getElementById('product-select');
-  const selectedName = input.value.trim();
-
-  const selected = products.find(p => p.name === selectedName);
-  if (!selected) {
-    alert("Bunday mahsulot topilmadi!");
-    return;
-  }
-
-  const existing = cart.find(item => item.id === selected.id);
-  if (existing) {
-    existing.quantity++;
-  } else {
-    cart.push({ ...selected, quantity: 1 });
-  }
-
-  input.value = '';
-  updateCart();
 });
 
-// Yakunlash (hozircha oddiy alert)
-finishButton.addEventListener('click', () => {
-  if (cart.length === 0) {
-    alert("Savat bo'sh!");
-    return;
+function addToCart() {
+  // ... oldingi logika ...
+  if (found) {
+    // ... qo'shish ...
+    renderCart();
+    productInput.value = '';
+    productInput.focus();
+  } else {
+    showError("Mahsulot topilmadi yoki noto'g'ri yozilgan!");
   }
-  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  alert(`Sotuv yakunlandi!\nJami: ${total.toLocaleString()} so'm\nRahmat!`);
+}
+
+finishBtn.addEventListener('click', () => {
+  if (cart.length === 0) return showError("Savat bo'sh!");
+
+  const total = parseFloat(totalSumEl.textContent.replace(/[^\d]/g, '')) || 0;
+
+  // Receipt yaratish
+  receiptContent.innerHTML = cart.map(item => `
+    <div class="flex justify-between text-lg">
+      <span>${item.name} × ${item.quantity}</span>
+      <span>${(item.price * item.quantity).toLocaleString('uz-UZ')} so'm</span>
+    </div>
+  `).join('');
+
+  if (discountInput.value.trim()) {
+    receiptContent.innerHTML += `<div class="flex justify-between text-lg text-yellow-300 mt-2">
+      <span>Chegirma (${discountInput.value})</span>
+      <span>- ${/* hisoblangan chegirma */ (/*...*/).toLocaleString('uz-UZ')} so'm</span>
+    </div>`;
+  }
+
+  receiptTotal.textContent = total.toLocaleString('uz-UZ') + " so'm";
+  receiptModal.classList.remove('hidden');
+});
+
+closeReceipt.addEventListener('click', () => {
+  receiptModal.classList.add('hidden');
   cart = [];
-  updateCart();
+  discountInput.value = '';
+  renderCart();
 });
 
-// Dastlab yuklash
-loadProducts();
-updateCart();
+function showError(msg) {
+  errorMsg.textContent = msg;
+  errorToast.classList.remove('translate-y-32');
+  setTimeout(() => errorToast.classList.add('translate-y-32'), 3500);
+}
+
+// Boshlash
+loadProductsToDatalist();
+renderCart();
