@@ -1,45 +1,71 @@
-<div id="admin-panel" class="fixed inset-0 bg-gray-50 z-[400] hidden overflow-y-auto p-4 md:p-10">
-    <div class="max-w-7xl mx-auto">
-        <div class="flex justify-between items-center mb-10">
-            <div>
-                <h2 class="text-3xl font-black italic text-[#7000ff]">Boshqaruv Markazi</h2>
-                <p id="user-role-display" class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1"></p>
-            </div>
-            <button onclick="toggleAdminPanel()" class="bg-white shadow-lg p-4 rounded-full hover:rotate-90 transition duration-300">✕</button>
-        </div>
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>dokon.uz | ERP Tizimi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f9fafb; }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+    </style>
+</head>
+<body>
 
-        <div id="section-stats" class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10 hidden">
-            <div class="bg-white p-8 rounded-[35px] shadow-sm border-b-4 border-purple-500">
-                <p class="text-gray-400 text-[10px] font-black mb-1">UMUMIY SAVDO</p>
-                <h3 id="stat-income" class="text-2xl font-black">0 so'm</h3>
+    <div id="admin-panel" class="fixed inset-0 z-[600] flex items-center justify-center p-4 md:p-8 bg-black/40 backdrop-blur-sm">
+        <div class="glass-card w-full max-w-6xl h-full max-h-[90vh] overflow-y-auto rounded-[40px] shadow-2xl p-6 md:p-10 border border-white">
+            
+            <div class="flex justify-between items-center mb-10 border-b pb-6">
+                <div>
+                    <h2 class="text-3xl font-black text-[#7000ff] italic tracking-tight">Boshqaruv Markazi</h2>
+                    <div id="active-staff" class="flex items-center gap-2 mt-1">
+                        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                        <p id="user-role-display" class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Tizim yuklanmoqda...</p>
+                    </div>
+                </div>
+                <button onclick="document.getElementById('admin-panel').classList.add('hidden')" class="bg-gray-100 p-4 rounded-full hover:bg-red-50 hover:text-red-500 transition-all duration-300">✕</button>
             </div>
-            <div class="bg-white p-8 rounded-[35px] shadow-sm border-b-4 border-green-500">
-                <p class="text-gray-400 text-[10px] font-black mb-1">SOF FOYDA</p>
-                <h3 id="stat-profit" class="text-2xl font-black text-green-600">0 so'm</h3>
-            </div>
-        </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
-            <div id="section-add-product" class="hidden space-y-4">
-                <div class="bg-white p-8 rounded-[35px] shadow-sm">
-                    <h4 class="font-black mb-6 text-sm text-gray-400 uppercase">Yangi Mahsulot (Menejer)</h4>
-                    <input id="p-name" placeholder="Nomi" class="w-full p-4 mb-3 bg-gray-50 rounded-2xl border-none outline-none focus:ring-2 ring-purple-400">
-                    <input id="p-price" type="number" placeholder="Narxi" class="w-full p-4 mb-3 bg-gray-50 rounded-2xl border-none outline-none">
-                    <input id="p-category" list="cats" placeholder="Kategoriya" class="w-full p-4 mb-5 bg-gray-50 rounded-2xl border-none outline-none">
-                    <datalist id="cats">
-                        <option value="Elektronika">
-                        <option value="Kiyimlar">
-                        <option value="Oziq-ovqat">
-                    </datalist>
-                    <button onclick="saveProduct()" class="w-full bg-[#7000ff] text-white py-4 rounded-2xl font-black shadow-lg shadow-purple-200">BAZAGA QO'SHISH</button>
+            <div id="section-stats" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+                <div class="bg-[#7000ff] p-8 rounded-[35px] text-white shadow-xl shadow-purple-100">
+                    <p class="text-[10px] font-bold opacity-70 mb-1 uppercase tracking-widest">Umumiy Savdo (Kassa)</p>
+                    <h3 id="stat-income" class="text-3xl font-black">0 so'm</h3>
+                </div>
+                <div class="bg-white p-8 rounded-[35px] border-2 border-green-500/10 shadow-sm">
+                    <p class="text-[10px] font-bold text-gray-400 mb-1 uppercase tracking-widest">Sof Foyda</p>
+                    <h3 id="stat-profit" class="text-3xl font-black text-green-600">0 so'm</h3>
                 </div>
             </div>
 
-            <div id="section-database" class="lg:col-span-2">
-                <h4 class="font-black mb-6 text-xl">Tizim Ma'lumotlar Bazasi</h4>
-                <div id="db-log-list" class="space-y-4 max-h-[600px] overflow-y-auto pr-4 no-scrollbar">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                <div id="section-add" class="space-y-4">
+                    <h4 class="font-black text-[11px] text-gray-400 uppercase tracking-widest mb-4">🛒 Yangi Mahsulot (Menejer)</h4>
+                    <div class="space-y-3 bg-gray-50/50 p-6 rounded-[30px] border border-gray-100">
+                        <input id="p-name" type="text" placeholder="Mahsulot nomi" class="w-full bg-white p-4 rounded-2xl outline-none border-2 border-transparent focus:border-[#7000ff] transition-all shadow-sm">
+                        <input id="p-price" type="number" placeholder="Sotuv narxi" class="w-full bg-white p-4 rounded-2xl outline-none border-2 border-transparent focus:border-[#7000ff] transition-all shadow-sm font-bold">
+                        <input id="p-cat" list="categories" placeholder="Turkum tanlang" class="w-full bg-white p-4 rounded-2xl outline-none border-2 border-transparent focus:border-[#7000ff] transition-all shadow-sm">
+                        <datalist id="categories">
+                            <option value="Smartfon">
+                            <option value="Maishiy texnika">
+                            <option value="Kiyimlar">
+                        </datalist>
+                        <button onclick="saveProductToDB()" class="w-full bg-black text-white py-5 rounded-2xl font-black hover:bg-[#7000ff] shadow-lg shadow-purple-100 transition-all duration-300 active:scale-95 uppercase text-xs">Bazaga qo'shish</button>
                     </div>
+                </div>
+
+                <div class="lg:col-span-2">
+                    <div class="flex justify-between items-center mb-6">
+                        <h4 class="font-black text-[11px] text-gray-400 uppercase tracking-widest">📂 Tizim Ma'lumotlar Bazasi</h4>
+                        <button onclick="clearLogs()" class="text-[10px] text-red-400 font-bold hover:underline">Bazani tozalash</button>
+                    </div>
+                    <div id="db-log-list" class="space-y-4 max-h-[500px] overflow-y-auto pr-2 no-scrollbar">
+                        </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
+
+    <script src="app.js"></script>
+</body>
+</html>
