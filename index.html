@@ -1,107 +1,110 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>dokon.uz - Admin</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <style>
-    :root {
-      --bg: #0f121a;
-      --sidebar: #1a1f2e;
-      --accent: #7c3aed;
-      --text: #e2e8f0;
-      --border: #2d3748;
-    }
-    body { margin:0; font-family:system-ui, sans-serif; background:var(--bg); color:var(--text); height:100vh; overflow:hidden; }
-    .container { display:flex; height:100%; }
-    .sidebar {
-      width:260px;
-      background:var(--sidebar);
-      padding:20px;
-      border-right:1px solid var(--border);
-      display:flex; flex-direction:column;
-    }
-    .logo { display:flex; align-items:center; gap:12px; margin-bottom:24px; }
-    .logo-circle { width:48px; height:48px; background:var(--accent); border-radius:12px; color:white; font-weight:bold; font-size:24px; display:flex; align-items:center; justify-content:center; }
-    .admin-info { text-align:center; padding:12px 0; border-bottom:1px solid var(--border); color:#94a3b8; font-size:0.95rem; }
-    nav a {
-      display:flex; align-items:center; gap:12px;
-      color:#94a3b8; text-decoration:none; padding:12px 16px; border-radius:8px; transition:0.2s;
-    }
-    nav a:hover, nav a.active { background:var(--accent); color:white; }
-    .main { flex:1; padding:32px; overflow-y:auto; }
-    .page { display:none; }
-    .page.active { display:block; }
-    .card { background:#171923; border:1px solid var(--border); border-radius:12px; padding:24px; margin:24px 0; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>dokon.uz | Premium ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #080c14; color: #f8fafc; }
+        .nav-active { background: linear-gradient(90deg, #4f46e5 0%, #3b82f6 100%); color: white; box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.4); }
+        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-blur: 12px; border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 24px; }
+        .sidebar { background: #0c121e; border-right: 1px solid rgba(255, 255, 255, 0.05); }
+        .hidden { display: none; }
+    </style>
 </head>
-<body>
+<body class="flex h-screen overflow-hidden">
 
-<div class="container">
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="logo">
-      <div class="logo-circle">D</div>
-      <span>dokon.uz</span>
-    </div>
-    <div class="admin-info">Admin: Begdulla005</div>
+    <aside class="w-72 sidebar p-6 flex flex-col gap-8 shrink-0">
+        <div class="flex items-center gap-3 px-2">
+            <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center font-black text-white shadow-lg">D</div>
+            <h1 class="text-xl font-extrabold tracking-tight italic">dokon<span class="text-indigo-500">.uz</span></h1>
+        </div>
 
-    <nav style="margin-top:24px; flex:1;">
-      <a href="#" data-page="dashboard" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-      <a href="#" data-page="kassa"><i class="fas fa-cash-register"></i> Kassa (Sotuv)</a>
-      <a href="#" data-page="mahsulotlar"><i class="fas fa-box"></i> Mahsulotlar</a>
-      <a href="#" data-page="buyurtmalar"><i class="fas fa-shopping-cart"></i> Buyurtmalar</a>
-      <a href="#" data-page="mijozlar"><i class="fas fa-users"></i> Mijozlar</a>
-    </nav>
+        <nav class="flex flex-col gap-2 flex-grow text-sm font-semibold text-slate-400">
+            <p class="text-[10px] uppercase tracking-widest text-slate-600 mb-2 px-2">Asosiy</p>
+            <button onclick="switchTab('dashboard')" id="btn-dashboard" class="nav-item nav-active p-4 flex items-center gap-3 rounded-2xl transition-all w-full text-left">📊 Dashboard</button>
+            
+            <p class="text-[10px] uppercase tracking-widest text-slate-600 mt-6 mb-2 px-2">Moliya & Savdo</p>
+            <button onclick="switchTab('kassa')" id="btn-kassa" class="nav-item p-4 flex items-center gap-3 rounded-2xl transition-all w-full text-left hover:bg-slate-800/50">🛒 Kassa terminali</button>
+            <button onclick="switchTab('tarix')" id="btn-tarix" class="nav-item p-4 flex items-center gap-3 rounded-2xl transition-all w-full text-left hover:bg-slate-800/50">🕒 Savdo tarixi</button>
+            
+            <p class="text-[10px] uppercase tracking-widest text-slate-600 mt-6 mb-2 px-2">Boshqaruv</p>
+            <button onclick="switchTab('mahsulotlar')" id="btn-mahsulotlar" class="nav-item p-4 flex items-center gap-3 rounded-2xl transition-all w-full text-left hover:bg-slate-800/50">📦 Mahsulotlar</button>
+            <button onclick="switchTab('mijozlar')" id="btn-mijozlar" class="nav-item p-4 flex items-center gap-3 rounded-2xl transition-all w-full text-left hover:bg-slate-800/50">👥 Mijozlar bazasi</button>
+        </nav>
+        
+        <div class="p-4 bg-indigo-600/10 rounded-2xl border border-indigo-500/20">
+            <p class="text-[10px] text-slate-500 font-bold uppercase">Admin: Begdulla005</p>
+            <div class="flex items-center gap-2 mt-2">
+                <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                <span class="text-xs text-emerald-400 font-bold tracking-tight">Tizim Online</span>
+            </div>
+        </div>
+    </aside>
 
-    <div style="margin-top:auto; padding:16px 0; color:#64748b; font-size:0.9rem;">
-      Tizim: Online rejim • 2026
-    </div>
-  </aside>
+    <main class="flex-grow flex flex-col overflow-hidden">
+        <header class="p-6 flex justify-between items-center bg-[#080c14]/50 backdrop-blur-xl z-10">
+            <h2 id="page-title" class="text-2xl font-black text-white">Dashboard</h2>
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-xl bg-indigo-600/20 flex items-center justify-center font-bold text-indigo-500 border border-indigo-500/30 text-lg">B</div>
+            </div>
+        </header>
 
-  <!-- Asosiy qism -->
-  <main class="main">
+        <div class="p-8 overflow-y-auto flex-grow space-y-8">
+            
+            <div id="section-dashboard" class="page-section space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="glass-card p-6"><p class="text-xs font-bold text-slate-500 uppercase">Jami Savdo</p><h3 id="dash-total" class="text-2xl font-black mt-2 text-white">0 so'm</h3></div>
+                    <div class="glass-card p-6"><p class="text-xs font-bold text-slate-500 uppercase">Sotuvlar</p><h3 id="dash-sales" class="text-2xl font-black mt-2 text-indigo-400">0 ta</h3></div>
+                    <div class="glass-card p-6"><p class="text-xs font-bold text-slate-500 uppercase">Mahsulotlar</p><h3 id="dash-products" class="text-2xl font-black mt-2 text-emerald-400">0 ta</h3></div>
+                    <div class="glass-card p-6"><p class="text-xs font-bold text-slate-500 uppercase">Mijozlar</p><h3 id="dash-clients" class="text-2xl font-black mt-2 text-orange-400">0 ta</h3></div>
+                </div>
+                <div class="glass-card p-8 h-[400px]">
+                    <h4 class="font-bold text-slate-400 mb-6 italic">Savdo Dinamikasi (Haftalik)</h4>
+                    <canvas id="mainChart"></canvas>
+                </div>
+            </div>
 
-    <div id="dashboard" class="page active">
-      <h1>Dashboard</h1>
-      <div class="card">
-        <h2>Umumiy statistika</h2>
-        <p>Bu yerda grafiklar, savdo summasi va boshqa ma'lumotlar chiqadi.</p>
-      </div>
-    </div>
+            <div id="section-kassa" class="page-section hidden grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 glass-card p-8">
+                    <h3 class="text-xl font-bold mb-6 italic underline decoration-indigo-500 underline-offset-8">Sotuv Paneli</h3>
+                    <div class="flex gap-4 mb-8">
+                        <select id="kassa-select" class="flex-grow bg-slate-900 border border-slate-700 p-4 rounded-2xl outline-none text-white font-semibold focus:border-indigo-500 transition-all"></select>
+                        <button onclick="addToCart()" class="bg-indigo-600 px-8 rounded-2xl font-black hover:scale-105 active:scale-95 transition-all">Savatga</button>
+                    </div>
+                    <div class="space-y-3" id="kassa-cart"></div>
+                </div>
+                <div class="glass-card p-8 h-fit space-y-6">
+                    <div class="flex justify-between text-2xl font-black"><span>Jami:</span><span id="kassa-total" class="text-indigo-400 text-3xl">0</span></div>
+                    <input id="client-name" type="text" placeholder="Mijoz ismi" class="w-full bg-slate-900 border border-slate-700 p-4 rounded-2xl outline-none">
+                    <button onclick="completeSale()" class="w-full bg-emerald-600 py-5 rounded-2xl font-black text-xl shadow-lg shadow-emerald-600/20">SOTUVNI YAKUNLASH</button>
+                </div>
+            </div>
 
-    <div id="kassa" class="page">
-      <h1>Kassa (Sotuv)</h1>
-      <div class="card">
-        <p>Sotuv paneli: mahsulot tanlash, savat, to'lov turlari shu yerda bo'ladi.</p>
-      </div>
-    </div>
+            <div id="section-mahsulotlar" class="page-section hidden grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="glass-card p-8 h-fit">
+                    <h3 class="text-xl font-bold mb-6">Yangi Mahsulot</h3>
+                    <div class="space-y-4">
+                        <input id="p-name" type="text" placeholder="Nomi" class="w-full bg-slate-900 border border-slate-700 p-4 rounded-2xl outline-none">
+                        <input id="p-price" type="number" placeholder="Narxi" class="w-full bg-slate-900 border border-slate-700 p-4 rounded-2xl outline-none">
+                        <button onclick="addNewProduct()" class="w-full bg-indigo-600 py-4 rounded-2xl font-black">QO'SHISH</button>
+                    </div>
+                </div>
+                <div class="lg:col-span-2 glass-card p-8">
+                    <h3 class="text-xl font-bold mb-6">Ombor Ro'yxati</h3>
+                    <div id="p-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                </div>
+            </div>
 
-    <div id="mahsulotlar" class="page">
-      <h1>Mahsulotlar</h1>
-      <div class="card">
-        <p>Mahsulotlar ro'yxati, qo'shish, tahrirlash, o'chirish funksiyalari.</p>
-      </div>
-    </div>
+            <div id="section-tarix" class="page-section hidden glass-card p-8"><div id="history-list" class="space-y-4"></div></div>
+            <div id="section-mijozlar" class="page-section hidden glass-card p-8"><div id="client-list" class="space-y-4"></div></div>
 
-    <div id="buyurtmalar" class="page">
-      <h1>Buyurtmalar</h1>
-      <div class="card">
-        <p>Buyurtmalar jadvali, holatni o'zgartirish, filtrlar shu yerda.</p>
-      </div>
-    </div>
+        </div>
+    </main>
 
-    <div id="mijozlar" class="page">
-      <h1>Mijozlar</h1>
-      <div class="card">
-        <p>Mijozlar bazasi, statistika, buyurtma tarixi.</p>
-      </div>
-    </div>
-
-  </main>
-</div>
-
-<script src="app.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
