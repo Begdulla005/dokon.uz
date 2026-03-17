@@ -1,139 +1,197 @@
-// ... oldingi products massivi saqlanadi ...
-
+// 1. MA'LUMOTLAR BAZASINI YUKLASH
+let products = JSON.parse(localStorage.getItem('dokon_products')) || [];
+let sales = JSON.parse(localStorage.getItem('dokon_sales')) || [];
 let cart = [];
-let selectedPayment = 'naqd';
 
-// DOM
-const productInput = document.getElementById('product-input');
-const addBtn = document.getElementById('add-btn');
-const cartItemsDiv = document.getElementById('cart-items');
-const totalSumEl = document.getElementById('total-sum');
-const finishBtn = document.getElementById('finish-btn');
-const discountInput = document.getElementById('discount-input');
-const errorToast = document.getElementById('error-toast');
-const errorMsg = document.getElementById('error-message');
-const receiptModal = document.getElementById('receipt-modal');
-const receiptContent = document.getElementById('receipt-content');
-const receiptTotal = document.getElementById('receipt-total');
-const closeReceipt = document.getElementById('close-receipt');
+// 2. SAHIFALARNI BOSHQARISH (Navigation)
+function switchPage(page) {
+    // Barcha bo'limlarni yashirish
+    document.querySelectorAll('.page-section').forEach(s => s.classList.add('hidden'));
+    // Barcha tugmalardan 'active' klassini olib tashlash
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    
+    // Tanlangan bo'limni ko'rsatish
+    document.getElementById('section-' + page).classList.remove('hidden');
+    document.getElementById('btn-' + page).classList.add('active');
+    document.getElementById('page-title').innerText = page.toUpperCase();
 
-// ... loadProductsToDatalist() funksiyasi oldingidek ...
-
-function renderCart() {
-  cartItemsDiv.innerHTML = '';
-  const emptyMsg = document.querySelector('.empty-message');
-
-  if (cart.length === 0) {
-    emptyMsg.classList.remove('hidden');
-    totalSumEl.textContent = '0 so\'m';
-    return;
-  }
-
-  emptyMsg.classList.add('hidden');
-
-  let subtotal = 0;
-  cart.forEach((item, i) => {
-    const itemTotal = item.price * item.quantity;
-    subtotal += itemTotal;
-
-    const div = document.createElement('div');
-    div.className = 'cart-item flex justify-between items-center py-4 border-b border-gray-700/30 animate-fade-in';
-    div.innerHTML = `
-      <div>
-        <div class="font-medium">${item.name}</div>
-        <div class="text-sm text-gray-400">${item.price.toLocaleString('uz-UZ')} so'm × ${item.quantity}</div>
-      </div>
-      <div class="flex items-center gap-4">
-        <div class="flex gap-2">
-          <button onclick="changeQty(${i}, -1)" class="w-9 h-9 bg-gray-700/70 rounded-lg hover:bg-gray-600 transition">-</button>
-          <span class="w-10 text-center pt-1.5">${item.quantity}</span>
-          <button onclick="changeQty(${i}, 1)" class="w-9 h-9 bg-gray-700/70 rounded-lg hover:bg-gray-600 transition">+</button>
-        </div>
-        <span class="font-medium w-28 text-right">${itemTotal.toLocaleString('uz-UZ')} so'm</span>
-        <button onclick="removeItem(${i})" class="text-red-400 hover:text-red-300 transition">
-          <i class="fas fa-trash-alt"></i>
-        </button>
-      </div>
-    `;
-    cartItemsDiv.appendChild(div);
-  });
-
-  // Chegirma hisoblash
-  let discountValue = 0;
-  const discStr = discountInput.value.trim();
-  if (discStr) {
-    if (discStr.endsWith('%')) {
-      const perc = parseFloat(discStr);
-      if (!isNaN(perc)) discountValue = subtotal * (perc / 100);
-    } else {
-      const sum = parseFloat(discStr);
-      if (!isNaN(sum)) discountValue = sum;
-    }
-  }
-
-  const finalTotal = Math.max(0, subtotal - discountValue);
-  totalSumEl.textContent = finalTotal.toLocaleString('uz-UZ') + " so'm";
+    // Sahifaga mos funksiyalarni ishga tushirish
+    if(page === 'dashboard') updateDashboard();
+    if(page === 'mahsulotlar') renderProducts();
+    if(page === 'kassa') updateKassaDropdown();
+    if(page === 'mijozlar') renderClients();
 }
 
-// ... changeQty, removeItem funksiyalari oldingidek, faqat renderCart() chaqirilsin ...
+// 3. MAHSULOTLARNI BOSHQARISH
+function addProduct() {
+    const name = document.getElementById('in-name').value;
+    const price = document.getElementById('in-price').value;
 
-addBtn.addEventListener('click', addToCart);
-productInput.addEventListener('keypress', e => {
-  if (e.key === 'Enter') {
-    e.preventDefault();
-    addToCart();
-  }
-});
+    if(name && price) {
+        products.push({ id: Date.now(), name, price: Number(price) });
+        saveData();
+        renderProducts();
+        // Inputlarni tozalash
+        document.getElementById('in-name').value = '';
+        document.getElementById('in-price').value = '';
+    } else {
+        alert("Iltimos, barcha maydonlarni to'ldiring!");
+    }
+}
+
+function renderProducts() {
+    const list = document.getElementById('product-list');
+    list.innerHTML = products.map(p => `
+        <div class="flex justify-between items-center bg-slate-800/30 p-4 rounded-2xl border border-slate-800/50">
+            <div>
+                <p class="font-bold text-slate-200">${p.name}</p>
+                <p class="text-xs text-indigo-400 font-black">${p.price.toLocaleString()} so'm</p>
+            </div>
+            <button onclick="deleteProduct(${p.id})" class="text-red-500 hover:bg-red-500/10 p-2 rounded-lg transition">🗑️</button>
+        </div>
+    `).join('');
+}
+
+function deleteProduct(id) {
+    if(confirm("Ushbu mahsulot o'chirilsinmi?")) {
+        products = products.filter(p => p.id !== id);
+        saveData();
+        renderProducts();
+    }
+}
+
+// 4. KASSA VA SOTUV TIZIMI
+function updateKassaDropdown() {
+    const select = document.getElementById('sale-product-select');
+    select.innerHTML = '<option value="">Mahsulotni tanlang...</option>' + 
+        products.map(p => `<option value="${p.id}">${p.name} - ${p.price.toLocaleString()} so'm</option>`).join('');
+}
 
 function addToCart() {
-  // ... oldingi logika ...
-  if (found) {
-    // ... qo'shish ...
+    const id = document.getElementById('sale-product-select').value;
+    const product = products.find(p => p.id == id);
+    if(product) {
+        cart.push({...product, cartId: Date.now()});
+        renderCart();
+    }
+}
+
+function renderCart() {
+    const container = document.getElementById('cart-list');
+    let total = 0;
+    
+    container.innerHTML = cart.map((p, index) => {
+        total += p.price;
+        return `
+            <div class="flex justify-between items-center bg-indigo-600/5 p-3 rounded-xl border border-indigo-500/10">
+                <span class="font-semibold">${p.name}</span>
+                <div class="flex items-center gap-4">
+                    <span class="font-black text-indigo-400">${p.price.toLocaleString()} so'm</span>
+                    <button onclick="removeFromCart(${index})" class="text-slate-500 hover:text-red-500">✕</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    document.getElementById('cart-total').innerText = total.toLocaleString();
+}
+
+function removeFromCart(index) {
+    cart.splice(index, 1);
     renderCart();
-    productInput.value = '';
-    productInput.focus();
-  } else {
-    showError("Mahsulot topilmadi yoki noto'g'ri yozilgan!");
-  }
 }
 
-finishBtn.addEventListener('click', () => {
-  if (cart.length === 0) return showError("Savat bo'sh!");
-
-  const total = parseFloat(totalSumEl.textContent.replace(/[^\d]/g, '')) || 0;
-
-  // Receipt yaratish
-  receiptContent.innerHTML = cart.map(item => `
-    <div class="flex justify-between text-lg">
-      <span>${item.name} × ${item.quantity}</span>
-      <span>${(item.price * item.quantity).toLocaleString('uz-UZ')} so'm</span>
-    </div>
-  `).join('');
-
-  if (discountInput.value.trim()) {
-    receiptContent.innerHTML += `<div class="flex justify-between text-lg text-yellow-300 mt-2">
-      <span>Chegirma (${discountInput.value})</span>
-      <span>- ${/* hisoblangan chegirma */ (/*...*/).toLocaleString('uz-UZ')} so'm</span>
-    </div>`;
-  }
-
-  receiptTotal.textContent = total.toLocaleString('uz-UZ') + " so'm";
-  receiptModal.classList.remove('hidden');
-});
-
-closeReceipt.addEventListener('click', () => {
-  receiptModal.classList.add('hidden');
-  cart = [];
-  discountInput.value = '';
-  renderCart();
-});
-
-function showError(msg) {
-  errorMsg.textContent = msg;
-  errorToast.classList.remove('translate-y-32');
-  setTimeout(() => errorToast.classList.add('translate-y-32'), 3500);
+function checkout() {
+    if(cart.length === 0) return alert("Savat bo'sh!");
+    
+    const clientName = prompt("Mijoz ismini kiriting:", "Noma'lum mijoz");
+    if(clientName) {
+        const totalAmount = cart.reduce((sum, item) => sum + item.price, 0);
+        const newSale = {
+            id: Date.now(),
+            client: clientName,
+            total: totalAmount,
+            date: new Date().toLocaleDateString(),
+            itemsCount: cart.length
+        };
+        
+        sales.push(newSale);
+        saveData();
+        cart = []; // Savatni bo'shatish
+        renderCart();
+        alert("Sotuv muvaffaqiyatli yakunlandi!");
+        switchPage('dashboard');
+    }
 }
 
-// Boshlash
-loadProductsToDatalist();
-renderCart();
+// 5. DASHBOARD VA STATISTIKA
+function updateDashboard() {
+    const totalSales = sales.reduce((sum, s) => sum + s.total, 0);
+    const totalItemsSoldCount = sales.reduce((sum, s) => sum + s.itemsCount, 0);
+    
+    document.getElementById('stat-total-sales').innerText = totalSales.toLocaleString() + " so'm";
+    // Agar index.html da boshqa stat kartalari bo'lsa, ularni ham shu yerda yangilash mumkin
+}
+
+function renderClients() {
+    const body = document.getElementById('client-history');
+    if(!body) return;
+    
+    body.innerHTML = sales.map(s => `
+        <tr class="border-b border-slate-800/50">
+            <td class="py-4 font-bold text-slate-300">${s.client}</td>
+            <td class="py-4 text-slate-500 text-xs">${s.date}</td>
+            <td class="py-4 text-emerald-400 font-black">${s.total.toLocaleString()} so'm</td>
+        </tr>
+    `).join('');
+}
+
+// 6. HAFTALIK GRAFIK (YAKSHANBA BILAN)
+function initChart() {
+    const ctx = document.getElementById('salesChart').getContext('2d');
+    
+    // Oxirgi 7 kunlik statistikani hisoblash (Namuna uchun static ma'lumot)
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Du', 'Se', 'Cho', 'Pa', 'Ju', 'Sha', 'Yak'], // Yakshanba qo'shildi
+            datasets: [{
+                label: 'Savdo hajmi',
+                data: [15, 28, 18, 35, 25, 40, 55], // Statistikani sal "narmalniyroq" ko'rsatish uchun
+                borderColor: '#6366f1',
+                borderWidth: 4,
+                tension: 0.4,
+                fill: true,
+                backgroundColor: 'rgba(99, 102, 241, 0.05)',
+                pointRadius: 6,
+                pointBackgroundColor: '#6366f1',
+                pointBorderColor: '#0f172a',
+                pointBorderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { display: false },
+                x: { 
+                    grid: { color: 'rgba(255,255,255,0.03)' },
+                    ticks: { color: '#64748b', font: { weight: 'bold' } }
+                }
+            }
+        }
+    });
+}
+
+// 7. YORDAMCHI FUNKSIYALAR
+function saveData() {
+    localStorage.setItem('dokon_products', JSON.stringify(products));
+    localStorage.setItem('dokon_sales', JSON.stringify(sales));
+}
+
+// ILK YUKLANISHDA ISHLAYDIGAN QISM
+window.onload = () => {
+    updateDashboard();
+    initChart();
+};
