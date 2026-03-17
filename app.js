@@ -1,71 +1,49 @@
-// XODIMLAR VA ROLLAR
-const STAFF_LIST = [
-    { phone: "905040811", role: "ADMIN", name: "Admin" }, //
-    { phone: "500755904", role: "MENEJER", name: "Sotuv menejeri" },
-    { phone: "954512804", role: "HISOBCHI", name: "Bosh hisobchi" }
+// XODIMLAR MA'LUMOTLAR BAZASI
+const STAFF = [
+    { phone: "905040811", role: "ADMIN", name: "Begdulla" }, //
+    { phone: "500755904", role: "MENEJER", name: "G'olib" },
+    { phone: "954512804", role: "HISOBCHI", name: "Shavkat" }
 ];
 
-let ordersDB = JSON.parse(localStorage.getItem('erp_orders_db')) || [];
-let productsDB = JSON.parse(localStorage.getItem('erp_products_db')) || [];
-let currentUPhone = localStorage.getItem('user_phone') || "905040811"; // Test uchun
+let products = [
+    { id: 1, name: "iPhone 15 Pro Max", price: 18500000, image: "https://vsc-store.uz/wp-content/uploads/2023/10/iphone-15-pro-finish-select-202309-6-7-inch-natural-titanium.webp" },
+    { id: 2, name: "Samsung A 10", price: 900000, image: "https://images.uzum.uz/cl05k7l6sfhsc0um2m4g/original.jpg" }
+];
 
-function initDashboard() {
-    const user = STAFF_LIST.find(s => s.phone === currentUPhone);
-    if (!user) {
-        alert("Xodim aniqlanmadi!");
-        return;
+// LOGIN FUNKSIYASI
+window.openStaffLogin = () => document.getElementById('staff-login-modal').classList.remove('hidden');
+window.closeStaffLogin = () => document.getElementById('staff-login-modal').classList.add('hidden');
+
+window.loginAsStaff = () => {
+    const phone = document.getElementById('staff-phone').value;
+    const worker = STAFF.find(s => s.phone === phone);
+
+    if (worker) {
+        alert(`Xush kelibsiz, ${worker.name}! (${worker.role})`);
+        document.getElementById('staff-login-modal').classList.add('hidden');
+        openAdminPanel(worker);
+    } else {
+        alert("Bunday raqamli xodim topilmadi! ❌");
     }
-
-    // Rolga qarab UI-ni moslash
-    document.getElementById('user-role-display').innerText = `${user.role}: ${user.name}`;
-    
-    const statsSec = document.getElementById('section-stats');
-    const addSec = document.getElementById('section-add');
-
-    if (user.role === "HISOBCHI") {
-        addSec.style.display = 'none'; // Hisobchi mahsulot qo'sholmaydi
-    } else if (user.role === "MENEJER") {
-        statsSec.style.display = 'none'; // Menejer pulni ko'rolmaydi
-    }
-
-    renderLogs();
-}
-
-window.saveProductToDB = () => {
-    const name = document.getElementById('p-name').value;
-    const price = document.getElementById('p-price').value;
-    if(!name || !price) return alert("Ma'lumotlar to'liq emas!");
-
-    productsDB.push({ id: Date.now(), name, price: parseInt(price) });
-    localStorage.setItem('erp_products_db', JSON.stringify(productsDB));
-    alert("Mahsulot bazaga muvaffaqiyatli qo'shildi! ✅");
 };
 
-function renderLogs() {
-    const list = document.getElementById('db-log-list');
-    const income = ordersDB.reduce((s, o) => s + o.total, 0);
+function openAdminPanel(worker) {
+    const panel = document.getElementById('admin-panel');
+    panel.classList.remove('hidden');
+    // Panel ichidagi UI-ni rolga qarab render qilish (Avvalgi yozgan kodimizdagidek)
+}
 
-    document.getElementById('stat-income').innerText = income.toLocaleString() + " so'm";
-    document.getElementById('stat-profit').innerText = (income * 0.15).toLocaleString() + " so'm";
-
-    if(ordersDB.length === 0) {
-        list.innerHTML = `<div class="p-20 text-center text-gray-300 font-bold border-2 border-dashed rounded-[30px]">Hozircha xaridlar yo'q</div>`;
-        return;
-    }
-
-    list.innerHTML = ordersDB.map(o => `
-        <div class="bg-white p-6 rounded-[28px] shadow-sm border-l-8 border-purple-500 flex justify-between items-center transition-all hover:shadow-md">
-            <div>
-                <span class="text-[9px] font-black text-purple-300 uppercase">${o.date}</span>
-                <h5 class="font-bold text-gray-800">Mijoz: +998 ${o.user}</h5>
-                <p class="text-[10px] text-gray-400 mt-1 italic">${o.items}</p>
-            </div>
-            <div class="text-right">
-                <p class="font-black text-gray-900 text-lg">${o.total.toLocaleString()} so'm</p>
-                <span class="text-[8px] bg-green-50 text-green-500 px-2 py-0.5 rounded font-black uppercase">To'landi ✅</span>
-            </div>
+// SAYTNI RENDER QILISH
+function renderSite() {
+    const grid = document.getElementById('product-grid');
+    grid.innerHTML = products.map(p => `
+        <div class="bg-white p-4 rounded-[25px] shadow-sm hover:shadow-lg transition">
+            <img src="${p.image}" class="h-40 w-full object-contain mb-4">
+            <h3 class="text-xs font-bold h-10 line-clamp-2">${p.name}</h3>
+            <p class="text-[#7000ff] font-black mt-2 text-sm">${p.price.toLocaleString()} so'm</p>
+            <button class="w-full mt-4 py-2 border-2 border-[#7000ff] text-[#7000ff] rounded-xl font-black text-[10px] hover:bg-[#7000ff] hover:text-white transition">SAVATGA</button>
         </div>
     `).join('');
 }
 
-initDashboard();
+renderSite();
