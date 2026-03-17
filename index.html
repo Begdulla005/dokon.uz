@@ -10,56 +10,79 @@
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0f172a; color: #f8fafc; }
         .nav-item.active { background: #4f46e5; color: white; box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4); }
-        .card { background: #1e293b; border: 1px solid rgba(255,255,255,0.05); }
+        .card { background: #1e293b; border: 1px solid rgba(255,255,255,0.05); transition: all 0.3s ease; }
+        .hidden { display: none; }
     </style>
 </head>
 <body class="flex h-screen overflow-hidden">
 
-    <aside class="w-72 border-r border-slate-800 p-6 flex flex-col gap-8 bg-[#0a0f1d]">
+    <aside class="w-72 border-r border-slate-800 p-6 flex flex-col gap-8 bg-[#0a0f1d] shrink-0">
         <div class="flex items-center gap-3 px-2">
             <div class="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center font-black">D</div>
-            <h1 class="text-xl font-extrabold tracking-tight text-white">dokon<span class="text-indigo-500">.uz</span></h1>
+            <h1 class="text-xl font-extrabold tracking-tight">dokon<span class="text-indigo-500">.uz</span></h1>
         </div>
 
         <nav class="flex flex-col gap-2 flex-grow text-sm font-semibold text-slate-400">
             <p class="text-[10px] uppercase tracking-[2px] text-slate-600 mb-2 px-2 italic">Asosiy</p>
-            <button onclick="switchPage('dashboard')" class="nav-item active p-3 flex items-center gap-3 rounded-xl transition-all">📊 Dashboard</button>
+            <button onclick="switchPage('dashboard')" id="btn-dashboard" class="nav-item active p-3 flex items-center gap-3 rounded-xl transition-all w-full text-left">📊 Dashboard</button>
             <p class="text-[10px] uppercase tracking-[2px] text-slate-600 mt-6 mb-2 px-2 italic">Boshqaruv</p>
-            <button onclick="switchPage('mijozlar')" class="nav-item p-3 flex items-center gap-3 rounded-xl transition-all">👥 Mijozlar</button>
-            <button onclick="switchPage('mahsulotlar')" class="nav-item p-3 flex items-center gap-3 rounded-xl transition-all">📦 Mahsulotlar</button>
+            <button onclick="switchPage('mahsulotlar')" id="btn-mahsulotlar" class="nav-item p-3 flex items-center gap-3 rounded-xl transition-all w-full text-left">📦 Mahsulotlar</button>
+            <button onclick="switchPage('mijozlar')" id="btn-mijozlar" class="nav-item p-3 flex items-center gap-3 rounded-xl transition-all w-full text-left">👥 Mijozlar</button>
         </nav>
+        <div class="text-[10px] text-slate-600 text-center">© 2026 dokon.uz</div>
     </aside>
 
-    <main class="flex-grow flex flex-col overflow-y-auto">
-        <header class="p-6 border-b border-slate-800 flex justify-between items-center sticky top-0 bg-[#0f172a]/80 backdrop-blur-xl z-50">
+    <main class="flex-grow flex flex-col overflow-hidden">
+        <header class="p-6 border-b border-slate-800 flex justify-between items-center bg-[#0f172a]/80 backdrop-blur-xl">
             <h2 id="page-title" class="text-xl font-black">Dashboard</h2>
             <div class="flex items-center gap-4">
-                <div class="text-right"><p class="text-[10px] text-slate-500 font-bold">Begdulla005</p></div>
+                <div class="text-right"><p class="text-[10px] text-slate-500 font-bold">Admin: Begdulla005</p></div>
                 <div class="w-10 h-10 rounded-2xl bg-indigo-600/10 border border-indigo-500/20 flex items-center justify-center font-bold text-indigo-500">B</div>
             </div>
         </header>
 
-        <div id="content" class="p-8">
-            <div id="section-dashboard" class="page-section">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-                    <div class="card p-6 rounded-[24px]">
-                        <p class="text-[10px] text-slate-500 font-bold uppercase">Umumiy Savdo</p>
-                        <h3 id="total-sales" class="text-3xl font-black mt-2">0 so'm</h3>
+        <div class="p-8 overflow-y-auto flex-grow space-y-8">
+            <div id="section-dashboard" class="page-section space-y-8">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="card p-8 rounded-[32px] flex flex-col justify-center">
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Umumiy Savdo</p>
+                        <h3 id="display-total-sales" class="text-4xl font-black mt-2">0 so'm</h3>
                     </div>
-                    <div class="card p-6 rounded-[24px] lg:col-span-2">
-                        <canvas id="salesChart" height="100"></canvas>
+                    <div class="card p-6 rounded-[32px] lg:col-span-2 h-64">
+                        <canvas id="salesChart"></canvas>
                     </div>
                 </div>
             </div>
 
-            <div id="section-mahsulotlar" class="page-section hidden">
-                <div class="card p-8 rounded-[30px] max-w-2xl">
-                    <h3 class="text-xl font-bold mb-6">Yangi Mahsulot Qo'shish</h3>
-                    <div class="space-y-4">
-                        <input id="prod-name" type="text" placeholder="Nomi" class="w-full bg-slate-900 border border-slate-700 p-4 rounded-2xl outline-none focus:border-indigo-500">
-                        <input id="prod-price" type="number" placeholder="Narxi" class="w-full bg-slate-900 border border-slate-700 p-4 rounded-2xl outline-none focus:border-indigo-500">
-                        <button onclick="saveProduct()" class="w-full bg-indigo-600 py-4 rounded-2xl font-black hover:bg-indigo-700 transition">BAZAGA QO'SHISH</button>
+            <div id="section-mahsulotlar" class="page-section hidden space-y-8">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="card p-8 rounded-[32px] h-fit">
+                        <h3 class="text-xl font-bold mb-6">Yangi Mahsulot</h3>
+                        <div class="flex flex-col gap-4">
+                            <input id="in-name" type="text" placeholder="Mahsulot nomi" class="w-full bg-slate-900 border border-slate-700 p-4 rounded-2xl outline-none focus:border-indigo-500 text-white">
+                            <input id="in-price" type="number" placeholder="Narxi (so'm)" class="w-full bg-slate-900 border border-slate-700 p-4 rounded-2xl outline-none focus:border-indigo-500 text-white">
+                            <button onclick="addProduct()" class="w-full bg-indigo-600 py-4 rounded-2xl font-black hover:bg-indigo-700 transition shadow-lg shadow-indigo-500/20">QO'SHISH</button>
+                        </div>
                     </div>
+                    <div class="lg:col-span-2 card p-8 rounded-[32px] overflow-hidden">
+                        <h3 class="text-xl font-bold mb-6">Ombordagi Mahsulotlar</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="text-[10px] text-slate-500 uppercase font-black border-b border-slate-800">
+                                    <tr><th class="pb-4">Nomi</th><th class="pb-4">Narxi</th><th class="pb-4 text-center">Amal</th></tr>
+                                </thead>
+                                <tbody id="product-table-body" class="text-sm">
+                                    </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="section-mijozlar" class="page-section hidden">
+                <div class="card p-8 rounded-[32px]">
+                    <h3 class="text-xl font-bold mb-4">Mijozlar Bazasi</h3>
+                    <p class="text-slate-500 italic">Tez kunda: Mijozlarni boshqarish tizimi ulanadi.</p>
                 </div>
             </div>
         </div>
