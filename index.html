@@ -3,130 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="google-site-verification" content="LJmUiAq_CswqFoV4wweXbFCvkyEeMIrcJ3BJ7qXQeNg" />
-    <title>dokon.uz | Professional Store</title>
+    <title>dokon.uz | Professional Database System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; scroll-behavior: smooth; }
-        .header-shadow { box-shadow: 0 2px 15px rgba(0,0,0,0.08); }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .search-results { display: none; }
-        .group:hover .search-results { display: block; }
+        body { font-family: 'Inter', sans-serif; background: #f8f9fa; }
+        .admin-card { transition: all 0.3s ease; }
+        .admin-card:hover { transform: translateY(-5px); }
     </style>
 </head>
 <body class="pb-20">
 
-    <header class="sticky top-0 z-50 bg-white header-shadow">
-        <div class="container mx-auto px-2 py-3 flex flex-col gap-3">
-            <div class="flex items-center justify-between gap-4">
-                <h1 onclick="location.reload()" class="text-xl font-black text-[#7000ff] cursor-pointer italic">dokon<span class="text-orange-500">.uz</span></h1>
-                
-                <div class="flex items-center gap-5">
-                    <div id="user-status-btn" onclick="toggleLogin()" class="flex flex-col items-center cursor-pointer group">
-                        <span class="text-xl group-hover:scale-110 transition">👤</span>
-                        <span id="login-text" class="text-[10px] font-bold">Kirish</span>
-                    </div>
-                    <div class="flex flex-col items-center cursor-pointer group">
-                        <span class="text-xl group-hover:scale-110 transition">❤️</span>
-                        <span class="text-[10px] font-bold text-gray-500">Saralangan</span>
-                    </div>
-                    <div onclick="toggleCartModal()" class="flex flex-col items-center cursor-pointer group relative">
-                        <span class="text-xl group-hover:scale-110 transition">🛒</span>
-                        <span class="text-[10px] font-bold">Savat</span>
-                        <span id="cart-count" class="absolute -top-1 -right-1 bg-orange-500 text-white text-[9px] px-1.5 rounded-full border-2 border-white font-bold">0</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="relative group">
-                <div class="flex bg-gray-100 rounded-2xl items-center px-4 py-1 border-2 border-transparent focus-within:border-[#7000ff] focus-within:bg-white transition-all shadow-sm">
-                    <input id="search-input" type="text" placeholder="Mahsulotlarni AI bilan izlang..." 
-                           class="w-full bg-transparent p-2 outline-none text-sm font-medium" oninput="smartSearch(this.value)">
-                    <span class="text-gray-400">🔍</span>
-                </div>
-                <div id="search-dropdown" class="search-results absolute top-full left-0 right-0 bg-white mt-2 rounded-2xl shadow-2xl border border-gray-100 z-[100] max-h-80 overflow-y-auto"></div>
+    <header class="sticky top-0 z-[100] bg-white border-b border-gray-100">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <h1 class="text-2xl font-black text-[#7000ff] cursor-pointer" onclick="location.reload()">dokon<span class="text-orange-500">.uz</span></h1>
+            
+            <div class="flex items-center gap-6">
+                <button onclick="toggleAdminPanel()" class="flex flex-col items-center group">
+                    <span class="text-xl group-hover:scale-110 transition">📊</span>
+                    <span class="text-[10px] font-bold">Admin</span>
+                </button>
+                <button onclick="toggleLogin()" class="flex flex-col items-center group">
+                    <span class="text-xl group-hover:scale-110 transition">👤</span>
+                    <span id="login-text" class="text-[10px] font-bold">Kirish</span>
+                </button>
+                <button onclick="openCart()" class="flex flex-col items-center group relative">
+                    <span class="text-xl group-hover:scale-110 transition">🛒</span>
+                    <span class="text-[10px] font-bold">Savat</span>
+                    <span id="cart-badge" class="absolute -top-1 -right-2 bg-orange-500 text-white text-[9px] px-1.5 rounded-full border-2 border-white">0</span>
+                </button>
             </div>
         </div>
     </header>
 
-    <main class="container mx-auto px-4 py-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10">
-            <div class="bg-gradient-to-br from-[#7000ff] to-[#4e00b3] rounded-[32px] p-8 h-52 flex flex-col justify-center text-white relative overflow-hidden group">
-                <h2 class="text-3xl font-black z-10 leading-tight">RAMAZON<br>CHEGIRMALARI</h2>
-                <button onclick="scrollToProducts()" class="bg-white text-[#7000ff] px-8 py-2.5 rounded-xl text-xs font-black mt-4 w-fit z-10 hover:invert transition">KO'RISH</button>
-                <div class="absolute right-[-20px] bottom-[-20px] opacity-10 text-[140px] font-black italic group-hover:scale-110 transition duration-700">🌙</div>
+    <main class="container mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+            <div class="bg-[#7000ff] rounded-[32px] p-10 text-white relative overflow-hidden">
+                <h2 class="text-3xl font-black mb-4">RAMAZON<br>CHEGIRMALARI</h2>
+                <button class="bg-white text-[#7000ff] px-8 py-3 rounded-2xl font-black text-sm">XARID QILISH</button>
             </div>
-            
-            <div class="bg-gradient-to-br from-[#00c9a7] to-[#00897b] rounded-[32px] p-8 h-52 flex flex-col justify-center text-white relative overflow-hidden group cursor-pointer" onclick="scrollToProducts()">
-                <h2 class="text-3xl font-black z-10 leading-tight uppercase">Tezkor<br>Yetkazib berish</h2>
-                <p class="text-xs opacity-90 z-10 mt-2 font-medium">O'zbekiston bo'ylab 24 soat ichida! 🚚</p>
-                <button class="bg-white text-[#00897b] px-8 py-2.5 rounded-xl text-xs font-black mt-4 w-fit z-10 group-hover:bg-black group-hover:text-white transition">XARID QILISH</button>
-                <div class="absolute right-[-40px] bottom-[-20px] opacity-20 text-[130px] group-hover:right-6 transition-all duration-1000">🚚</div>
+            <div class="bg-[#00c9a7] rounded-[32px] p-10 text-white">
+                <h2 class="text-3xl font-black mb-2 uppercase">Tezkor Yetkazib Berish</h2>
+                <p class="opacity-90">O'zbekiston bo'ylab 24 soat ichida! 🚚</p>
             </div>
         </div>
 
-        <div id="category-bar" class="flex gap-3 overflow-x-auto pb-6 no-scrollbar sticky top-[135px] bg-[#f8f9fa]/95 backdrop-blur-md z-40 py-2"></div>
-
-        <div id="product-section">
-            <div id="product-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4"></div>
-        </div>
+        <div id="product-list" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-5"></div>
     </main>
 
-    <div id="login-modal" class="fixed inset-0 bg-black/70 z-[300] hidden flex items-center justify-center p-4 backdrop-blur-md">
-        <div class="bg-white w-full max-w-sm rounded-[35px] p-10 relative shadow-2xl animate-in fade-in zoom-in duration-300">
-            <button onclick="toggleLogin()" class="absolute top-6 right-8 text-gray-300 hover:text-black text-xl">✕</button>
-            <div class="text-center mb-8">
-                <div class="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span class="text-3xl">👤</span>
-                </div>
+    <div id="login-modal" class="fixed inset-0 bg-black/60 z-[300] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-sm rounded-[35px] p-10 text-center shadow-2xl">
+            <div id="phone-view">
                 <h3 class="text-2xl font-black mb-2">Tizimga kirish</h3>
-                <p class="text-sm text-gray-500 px-4">Buyurtma berish uchun telefon raqamingizni kiriting</p>
-            </div>
-            <div class="space-y-5">
-                <div class="bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 flex items-center focus-within:border-[#7000ff] transition">
-                    <span class="text-gray-400 font-bold mr-2 text-lg">+998</span>
-                    <input id="user-phone" type="tel" placeholder="00 000 00 00" class="w-full bg-transparent outline-none font-bold text-lg tracking-wider">
+                <p class="text-sm text-gray-500 mb-6">Telefon raqamingizni kiriting</p>
+                <div class="bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 flex items-center mb-6">
+                    <span class="font-bold text-gray-400 mr-2">+998</span>
+                    <input id="login-phone" type="tel" placeholder="90 504 08 11" class="w-full bg-transparent outline-none font-bold text-lg">
                 </div>
-                <button id="login-submit-btn" onclick="sendCode()" class="w-full bg-[#7000ff] text-white py-4 rounded-2xl font-black text-lg shadow-lg hover:bg-[#5e00d9] transition active:scale-95">
-                    Kirish
-                </button>
+                <button onclick="requestSms()" class="w-full bg-[#7000ff] text-white py-4 rounded-2xl font-black shadow-lg">Kod olish</button>
+            </div>
+            <div id="code-view" class="hidden">
+                <h3 class="text-2xl font-black mb-2">Kodni kiriting</h3>
+                <input id="verify-code" type="number" placeholder="0000" class="w-full bg-gray-50 border-2 border-[#7000ff] p-4 rounded-2xl text-center font-black text-2xl tracking-[10px] mb-6 outline-none">
+                <button onclick="verifyAndLogin()" class="w-full bg-green-500 text-white py-4 rounded-2xl font-black shadow-lg">Tasdiqlash</button>
             </div>
         </div>
     </div>
 
-    <div id="cart-modal" class="fixed inset-0 bg-black/50 z-[200] hidden flex items-center justify-end">
-        <div class="bg-white h-full w-full max-w-md p-8 flex flex-col shadow-2xl">
-            <div class="flex justify-between items-center mb-8">
-                <h2 class="text-2xl font-black">Savatcha</h2>
-                <button onclick="toggleCartModal()" class="text-2xl text-gray-400">✕</button>
+    <div id="admin-panel" class="fixed inset-0 bg-gray-50 z-[400] hidden overflow-y-auto">
+        <div class="max-w-7xl mx-auto p-6 md:p-10">
+            <div class="flex justify-between items-center mb-10">
+                <h2 class="text-3xl font-black italic text-[#7000ff]">Boshqaruv Paneli</h2>
+                <button onclick="toggleAdminPanel()" class="bg-white shadow-md p-4 rounded-full hover:bg-red-50 transition">✕</button>
             </div>
-            <div id="cart-items" class="flex-1 overflow-y-auto space-y-5 pr-2 no-scrollbar"></div>
-            <div class="pt-8 border-t-2 border-gray-50 mt-4">
-                <div class="flex justify-between text-xl font-black mb-6">
-                    <span class="text-gray-500">Jami summaningiz:</span>
-                    <span id="cart-total" class="text-[#7000ff]">0 so'm</span>
-                </div>
-                <button onclick="checkoutToTelegram()" class="w-full bg-[#7000ff] text-white py-5 rounded-[22px] font-black text-xl shadow-xl hover:shadow-purple-200 transition active:scale-95">
-                    Sotib olish
-                </button>
-            </div>
-        </div>
-    </div>
 
-    <button onclick="toggleAdmin()" class="fixed bottom-8 left-8 bg-black text-white w-14 h-14 rounded-full shadow-2xl z-50 font-bold text-2xl flex items-center justify-center hover:rotate-90 transition-all duration-500">+</button>
-    
-    <div id="admin-panel" class="fixed inset-0 bg-black/60 z-[400] hidden flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-sm rounded-[35px] p-10">
-            <h3 class="text-2xl font-black mb-6">Yangi mahsulot</h3>
-            <div class="space-y-4">
-                <input id="p-name" type="text" placeholder="Nomi" class="w-full bg-gray-50 p-4 rounded-2xl border-2 border-transparent focus:border-purple-400 outline-none">
-                <input id="p-price" type="number" placeholder="Narxi" class="w-full bg-gray-50 p-4 rounded-2xl border-2 border-transparent focus:border-purple-400 outline-none">
-                <input id="p-old-price" type="number" placeholder="Eski narxi" class="w-full bg-gray-50 p-4 rounded-2xl border-2 border-transparent focus:border-purple-400 outline-none">
-                <input id="p-category" type="text" placeholder="Kategoriya" class="w-full bg-gray-50 p-4 rounded-2xl border-2 border-transparent focus:border-purple-400 outline-none">
-                <input id="p-image" type="text" placeholder="Rasm URL" class="w-full bg-gray-50 p-4 rounded-2xl border-2 border-transparent focus:border-purple-400 outline-none">
-                <button onclick="saveProduct()" class="w-full bg-black text-white py-4 rounded-2xl font-black text-lg">Saqlash</button>
-                <button onclick="toggleAdmin()" class="w-full text-gray-400 font-bold text-sm mt-2">Bekor qilish</button>
+            <div id="super-stats" class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+                <div class="bg-white p-8 rounded-[30px] shadow-sm border-b-4 border-purple-500 admin-card">
+                    <p class="text-gray-400 text-[10px] font-black uppercase mb-1">Umumiy Kirim</p>
+                    <h3 id="total-income" class="text-2xl font-black">0 so'm</h3>
+                </div>
+                <div class="bg-white p-8 rounded-[30px] shadow-sm border-b-4 border-orange-500 admin-card">
+                    <p class="text-gray-400 text-[10px] font-black uppercase mb-1">Buyurtmalar</p>
+                    <h3 id="total-orders" class="text-2xl font-black">0 ta</h3>
+                </div>
+                <div id="profit-card" class="bg-white p-8 rounded-[30px] shadow-sm border-b-4 border-green-500 admin-card">
+                    <p class="text-gray-400 text-[10px] font-black uppercase mb-1">Sof Foyda (Taxminan)</p>
+                    <h3 id="total-profit" class="text-2xl font-black text-green-600">0 so'm</h3>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                <div class="lg:col-span-2">
+                    <div class="flex items-center justify-between mb-6">
+                        <h4 class="font-black text-xl">Xaridlar Jurnali (Database)</h4>
+                        <button onclick="clearDatabase()" class="text-xs text-red-500 underline">Bazani tozalash</button>
+                    </div>
+                    <div id="db-orders-list" class="space-y-4 max-h-[600px] overflow-y-auto pr-2 no-scrollbar">
+                        </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="bg-white p-8 rounded-[30px] shadow-sm">
+                        <h4 class="font-black mb-4">Mahsulot Boshqaruvi</h4>
+                        <input id="new-p-name" placeholder="Nomi" class="w-full p-4 mb-3 bg-gray-50 rounded-xl outline-none border">
+                        <input id="new-p-price" type="number" placeholder="Sotuv narxi" class="w-full p-4 mb-3 bg-gray-50 rounded-xl outline-none border">
+                        <input id="new-p-img" placeholder="Rasm havolasi (URL)" class="w-full p-4 mb-5 bg-gray-50 rounded-xl outline-none border">
+                        <button onclick="addProduct()" class="w-full bg-black text-white py-4 rounded-2xl font-black">Bazaga qo'shish</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
