@@ -1,124 +1,33 @@
-<!DOCTYPE html>
-<html lang="uz">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>dokon.uz | Professional ERP</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0a0f1d; color: #f8fafc; }
-        .nav-item.active { background: #4f46e5; color: white; box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.4); }
-        .card { background: #161e2d; border: 1px solid rgba(255,255,255,0.03); border-radius: 24px; }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
-    </style>
-</head>
-<body class="flex h-screen overflow-hidden">
+<!-- index.html ichida, sotuv paneli qismiga -->
+<div class="sotuv-panel">
+  <h2>Sotuv Paneli</h2>
+  
+  <div class="add-product">
+    <input 
+      list="product-list" 
+      id="product-select" 
+      placeholder="Mahsulotni tanlang yoki qidiring..." 
+      autocomplete="off"
+    />
+    <datalist id="product-list">
+      <!-- JS orqali dinamik to'ldiramiz -->
+    </datalist>
+    
+    <button id="add-to-cart" class="btn-add">SAVATGA QO'SHISH</button>
+  </div>
 
-    <aside class="w-72 border-r border-slate-800/50 p-6 flex flex-col gap-8 bg-[#070b14] shrink-0">
-        <div class="flex items-center gap-3 px-2">
-            <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center font-black text-white shadow-lg shadow-indigo-600/20">D</div>
-            <h1 class="text-xl font-extrabold tracking-tight">dokon<span class="text-indigo-500">.uz</span></h1>
-        </div>
-
-        <nav class="flex flex-col gap-1 flex-grow text-sm font-semibold text-slate-400">
-            <p class="text-[10px] uppercase tracking-widest text-slate-600 mb-2 px-2">Asosiy</p>
-            <button onclick="switchPage('dashboard')" id="btn-dashboard" class="nav-item active p-3 flex items-center gap-3 rounded-xl transition-all w-full text-left">📊 Dashboard</button>
-            <button onclick="switchPage('kassa')" id="btn-kassa" class="nav-item p-3 flex items-center gap-3 rounded-xl transition-all w-full text-left">🛒 Kassa (Sotuv)</button>
-            <p class="text-[10px] uppercase tracking-widest text-slate-600 mt-6 mb-2 px-2">Boshqaruv</p>
-            <button onclick="switchPage('mahsulotlar')" id="btn-mahsulotlar" class="nav-item p-3 flex items-center gap-3 rounded-xl transition-all w-full text-left">📦 Mahsulotlar</button>
-            <button onclick="switchPage('mijozlar')" id="btn-mijozlar" class="nav-item p-3 flex items-center gap-3 rounded-xl transition-all w-full text-left">👥 Mijozlar Bazasi</button>
-        </nav>
-        <div class="p-4 bg-indigo-600/5 rounded-2xl border border-indigo-500/10">
-            <p class="text-[10px] text-slate-500 font-bold uppercase">Tizim holati</p>
-            <p class="text-xs text-indigo-400 mt-1 font-bold">● Online Rejim</p>
-        </div>
-    </aside>
-
-    <main class="flex-grow flex flex-col overflow-hidden">
-        <header class="p-6 border-b border-slate-800/50 flex justify-between items-center bg-[#0a0f1d]/50 backdrop-blur-md">
-            <h2 id="page-title" class="text-xl font-black">Dashboard</h2>
-            <div class="flex items-center gap-4">
-                <div class="text-right hidden sm:block"><p class="text-[10px] text-slate-500 font-bold">Admin: Begdulla005</p></div>
-                <div class="w-10 h-10 rounded-xl bg-indigo-600/10 border border-indigo-500/20 flex items-center justify-center font-bold text-indigo-500">B</div>
-            </div>
-        </header>
-
-        <div class="p-8 overflow-y-auto flex-grow space-y-8">
-            
-            <div id="section-dashboard" class="page-section space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div class="card p-6"><p class="text-xs font-bold text-slate-500 uppercase">Jami Savdo</p><h3 id="stat-total-sales" class="text-2xl font-black mt-2 text-white">0 so'm</h3></div>
-                    <div class="card p-6"><p class="text-xs font-bold text-slate-500 uppercase">Sotilgan tovarlar</p><h3 id="stat-total-items" class="text-2xl font-black mt-2 text-indigo-400">0 ta</h3></div>
-                    <div class="card p-6"><p class="text-xs font-bold text-slate-500 uppercase">Mijozlar</p><h3 id="stat-total-clients" class="text-2xl font-black mt-2 text-emerald-400">0 ta</h3></div>
-                    <div class="card p-6"><p class="text-xs font-bold text-slate-500 uppercase">Ombor qoldig'i</p><h3 id="stat-stock" class="text-2xl font-black mt-2 text-orange-400">0 ta</h3></div>
-                </div>
-                <div class="card p-6 h-80">
-                    <div class="flex justify-between items-center mb-4">
-                        <h4 class="font-bold text-slate-400 italic">Savdo Dinamikasi (Haftalik)</h4>
-                    </div>
-                    <canvas id="salesChart"></canvas>
-                </div>
-            </div>
-
-            <div id="section-kassa" class="page-section hidden grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="lg:col-span-2 card p-6">
-                    <h3 class="text-xl font-bold mb-6">Sotuv Paneli</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                        <select id="sale-product-select" class="bg-slate-900 border border-slate-700 p-4 rounded-xl outline-none text-white font-semibold">
-                            <option value="">Mahsulotni tanlang...</option>
-                        </select>
-                        <button onclick="addToCart()" class="bg-emerald-600 hover:bg-emerald-700 p-4 rounded-xl font-black transition">SAVATGA QO'SHISH</button>
-                    </div>
-                    <div class="overflow-hidden rounded-xl border border-slate-800">
-                        <table class="w-full text-left text-sm">
-                            <thead class="bg-slate-800/50 text-slate-500 uppercase text-[10px] font-black">
-                                <tr><th class="p-4">Nomi</th><th class="p-4 text-center">Amal</th></tr>
-                            </thead>
-                            <tbody id="cart-items"></tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="card p-6 h-fit bg-indigo-600/10 border-indigo-500/20">
-                    <h3 class="text-lg font-black mb-4 uppercase">To'lov Ma'lumoti</h3>
-                    <input id="sale-client-name" type="text" placeholder="Mijoz ismi" class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl mb-4 outline-none">
-                    <div class="flex justify-between text-xl font-black mb-6"><span>Jami:</span><span id="cart-total">0 so'm</span></div>
-                    <button onclick="checkout()" class="w-full bg-indigo-600 py-5 rounded-2xl font-black text-lg shadow-xl shadow-indigo-600/30">SOTUVNI YAKUNLASH</button>
-                </div>
-            </div>
-
-            <div id="section-mahsulotlar" class="page-section hidden grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="card p-6 h-fit">
-                    <h3 class="text-xl font-bold mb-6 italic text-indigo-400 underline decoration-2">Yangi Mahsulot</h3>
-                    <div class="space-y-4">
-                        <input id="in-name" type="text" placeholder="Mahsulot nomi" class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl outline-none focus:border-indigo-500 transition-all">
-                        <input id="in-price" type="number" placeholder="Narxi (so'm)" class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl outline-none focus:border-indigo-500 transition-all">
-                        <button onclick="addProduct()" class="w-full bg-indigo-600 py-4 rounded-xl font-black hover:scale-[1.02] active:scale-95 transition-all">BAZAGA QO'SHISH</button>
-                    </div>
-                </div>
-                <div class="lg:col-span-2 card p-6">
-                    <h3 class="text-xl font-bold mb-6 italic text-slate-400">Ombor Ro'yxati</h3>
-                    <div id="product-list" class="space-y-3"></div>
-                </div>
-            </div>
-
-            <div id="section-mijozlar" class="page-section hidden card p-8">
-                <h3 class="text-xl font-bold mb-6">Mijozlar Tarixi</h3>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead class="text-[10px] text-slate-500 uppercase font-black border-b border-slate-800">
-                            <tr><th class="pb-4">Mijoz</th><th class="pb-4">Sana</th><th class="pb-4">Summa</th></tr>
-                        </thead>
-                        <tbody id="client-history" class="text-sm"></tbody>
-                    </table>
-                </div>
-            </div>
-
-        </div>
-    </main>
-
-    <script src="app.js"></script>
-</body>
-</html>
+  <div class="cart">
+    <h3>Savat</h3>
+    <div id="cart-items">
+      <!-- JS orqali mahsulotlar chiqadi -->
+      <p class="empty-cart">Savat bo'sh</p>
+    </div>
+    
+    <div class="total">
+      <strong>Jami:</strong> 
+      <span id="total-amount">0 so'm</span>
+    </div>
+    
+    <button id="finish-sale" class="btn-finish">SOTUVNI YAKUNLASH</button>
+  </div>
+</div>

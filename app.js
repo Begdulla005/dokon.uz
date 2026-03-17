@@ -1,149 +1,120 @@
-// BAZA
-let products = JSON.parse(localStorage.getItem('dokon_products')) || [];
-let sales = JSON.parse(localStorage.getItem('dokon_sales')) || [];
-let cart = [];
+// app.js
 
-// 1. SAHIFALARNI ALMASHTIRISH
-function switchPage(page) {
-    document.querySelectorAll('.page-section').forEach(s => s.classList.add('hidden'));
-    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-    
-    document.getElementById('section-' + page).classList.remove('hidden');
-    document.getElementById('btn-' + page).classList.add('active');
-    document.getElementById('page-title').innerText = page.toUpperCase();
+// Mahsulotlar bazasi (hozircha statik, keyin backenddan olamiz)
+const products = [
+  { id: 1, name: "Samsung Galaxy A55", price: 4500000, stock: 12 },
+  { id: 2, name: "AirPods Pro 2", price: 3800000, stock: 8 },
+  { id: 3, name: "iPhone 15 Pro", price: 14000000, stock: 5 },
+  { id: 4, name: "Simsiz quvvatlagich", price: 450000, stock: 20 },
+  { id: 5, name: "USB-C kabel 2m", price: 120000, stock: 50 },
+  // O'zingizning mahsulotlaringizni qo'shing
+];
 
-    if(page === 'dashboard') updateStats();
-    if(page === 'mahsulotlar') renderProducts();
-    if(page === 'kassa') updateKassaDropdown();
-    if(page === 'mijozlar') renderClients();
+let cart = []; // savat massivi
+
+// DOM elementlarni olish
+const productSelect = document.getElementById('product-select'); // <select> yoki <input>
+const addButton = document.getElementById('add-to-cart');
+const cartItemsContainer = document.getElementById('cart-items');
+const totalAmount = document.getElementById('total-amount');
+const finishButton = document.getElementById('finish-sale');
+// davomi...
+
+// Mahsulotlarni datalist ga yuklash (qidiruv uchun)
+function loadProducts() {
+  const datalist = document.getElementById('product-list');
+  datalist.innerHTML = '';
+  products.forEach(product => {
+    const option = document.createElement('option');
+    option.value = product.name;
+    option.dataset.id = product.id;
+    option.dataset.price = product.price;
+    datalist.appendChild(option);
+  });
 }
 
-// 2. MAHSULOT QO'SHISH
-function addProduct() {
-    const name = document.getElementById('in-name').value;
-    const price = document.getElementById('in-price').value;
+// Savatni yangilash
+function updateCart() {
+  const container = document.getElementById('cart-items');
+  container.innerHTML = '';
 
-    if(name && price) {
-        products.push({ id: Date.now(), name, price });
-        saveData();
-        renderProducts();
-        document.getElementById('in-name').value = '';
-        document.getElementById('in-price').value = '';
-    }
-}
-
-function renderProducts() {
-    const list = document.getElementById('product-list');
-    list.innerHTML = products.map(p => `
-        <div class="flex justify-between items-center bg-slate-800/30 p-4 rounded-2xl border border-slate-800/50">
-            <div><p class="font-bold text-slate-200">${p.name}</p><p class="text-xs text-indigo-400 font-black">${Number(p.price).toLocaleString()} so'm</p></div>
-            <button onclick="deleteProduct(${p.id})" class="text-red-500 hover:bg-red-500/10 p-2 rounded-lg">🗑️</button>
+  if (cart.length === 0) {
+    container.innerHTML = '<p class="empty-cart">Savat bo\'sh</p>';
+  } else {
+    cart.forEach((item, index) => {
+      const itemDiv = document.createElement('div');
+      itemDiv.className = 'cart-item';
+      itemDiv.innerHTML = `
+        <div class="item-info">
+          <span>${item.name}</span>
+          <small>${item.price.toLocaleString()} so'm × ${item.quantity}</small>
         </div>
-    `).join('');
+        <div class="item-actions">
+          <button onclick="changeQuantity(${index}, -1)">-</button>
+          <span>${item.quantity}</span>
+          <button onclick="changeQuantity(${index}, 1)">+</button>
+          <button class="btn-remove" onclick="removeFromCart(${index})">O'chirish</button>
+        </div>
+      `;
+      container.appendChild(itemDiv);
+    });
+  }
+
+  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  totalAmount.textContent = total.toLocaleString() + " so'm";
 }
 
-function deleteProduct(id) {
-    products = products.filter(p => p.id !== id);
-    saveData();
-    renderProducts();
-}
-
-// 3. KASSA VA SOTUV
-function updateKassaDropdown() {
-    const select = document.getElementById('sale-product-select');
-    select.innerHTML = '<option value="">Mahsulotni tanlang...</option>' + 
-        products.map(p => `<option value="${p.id}">${p.name} - ${p.price} so'm</option>`).join('');
-}
-
-function addToCart() {
-    const id = document.getElementById('sale-product-select').value;
-    const product = products.find(p => p.id == id);
-    if(product) {
-        cart.push(product);
-        renderCart();
-    }
-}
-
-function renderCart() {
-    const body = document.getElementById('cart-items');
-    let total = 0;
-    body.innerHTML = cart.map((p, index) => {
-        total += Number(p.price);
-        return `<tr class="border-b border-slate-800/50"><td class="p-4 font-bold">${p.name}</td><td class="p-4 text-center text-red-400 cursor-pointer" onclick="removeFromCart(${index})">O'chirish</td></tr>`;
-    }).join('');
-    document.getElementById('cart-total').innerText = total.toLocaleString() + " so'm";
-}
-
-function removeFromCart(index) {
+// Miqdor o'zgartirish
+window.changeQuantity = function(index, delta) {
+  const newQty = cart[index].quantity + delta;
+  if (newQty >= 1) {
+    cart[index].quantity = newQty;
+  } else {
     cart.splice(index, 1);
-    renderCart();
+  }
+  updateCart();
 }
 
-function checkout() {
-    const client = document.getElementById('sale-client-name').value || "Noma'lum Mijoz";
-    if(cart.length > 0) {
-        let total = cart.reduce((sum, p) => sum + Number(p.price), 0);
-        sales.push({ client, total, date: new Date().toLocaleDateString(), items: cart.length });
-        saveData();
-        cart = [];
-        renderCart();
-        document.getElementById('sale-client-name').value = '';
-        alert("Sotuv muvaffaqiyatli yakunlandi!");
-    }
+// O'chirish
+window.removeFromCart = function(index) {
+  cart.splice(index, 1);
+  updateCart();
 }
 
-// 4. STATISTIKA (YAKSHANBA QO'SHILDI)
-function updateStats() {
-    const totalSales = sales.reduce((sum, s) => sum + s.total, 0);
-    const totalItems = sales.reduce((sum, s) => sum + s.items, 0);
-    
-    document.getElementById('stat-total-sales').innerText = totalSales.toLocaleString() + " so'm";
-    document.getElementById('stat-total-items').innerText = totalItems + " ta";
-    document.getElementById('stat-total-clients').innerText = sales.length + " ta";
-    document.getElementById('stat-stock').innerText = products.length + " ta";
-}
+// Qo'shish tugmasi
+addButton.addEventListener('click', () => {
+  const input = document.getElementById('product-select');
+  const selectedName = input.value.trim();
 
-function renderClients() {
-    const body = document.getElementById('client-history');
-    body.innerHTML = sales.map(s => `
-        <tr class="border-b border-slate-800/50">
-            <td class="py-4 font-bold">${s.client}</td>
-            <td class="py-4 text-slate-500">${s.date}</td>
-            <td class="py-4 text-emerald-400 font-black">${s.total.toLocaleString()} so'm</td>
-        </tr>
-    `).join('');
-}
+  const selected = products.find(p => p.name === selectedName);
+  if (!selected) {
+    alert("Bunday mahsulot topilmadi!");
+    return;
+  }
 
-function saveData() {
-    localStorage.setItem('dokon_products', JSON.stringify(products));
-    localStorage.setItem('dokon_sales', JSON.stringify(sales));
-}
+  const existing = cart.find(item => item.id === selected.id);
+  if (existing) {
+    existing.quantity++;
+  } else {
+    cart.push({ ...selected, quantity: 1 });
+  }
 
-// 5. CHART
-const ctx = document.getElementById('salesChart').getContext('2d');
-new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: ['Du', 'Se', 'Cho', 'Pa', 'Ju', 'Sha', 'Yak'], // Yakshanba qo'shildi
-        datasets: [{
-            label: 'Savdo',
-            data: [12, 19, 13, 25, 22, 30, 45],
-            borderColor: '#6366f1',
-            borderWidth: 4,
-            tension: 0.4,
-            fill: true,
-            backgroundColor: 'rgba(99, 102, 241, 0.05)',
-            pointRadius: 5,
-            pointBackgroundColor: '#6366f1'
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: { y: { display: false }, x: { grid: { color: 'rgba(255,255,255,0.02)' }, ticks: { color: '#64748b' } } }
-    }
+  input.value = '';
+  updateCart();
 });
 
-// ILK YUKLANISH
-updateStats();
+// Yakunlash (hozircha oddiy alert)
+finishButton.addEventListener('click', () => {
+  if (cart.length === 0) {
+    alert("Savat bo'sh!");
+    return;
+  }
+  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  alert(`Sotuv yakunlandi!\nJami: ${total.toLocaleString()} so'm\nRahmat!`);
+  cart = [];
+  updateCart();
+});
+
+// Dastlab yuklash
+loadProducts();
+updateCart();
